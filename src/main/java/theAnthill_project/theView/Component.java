@@ -37,14 +37,19 @@ public class Component extends HBox
         this.getChildren().addAll(name,container);
     }
 
-    public StringProperty getContainer()
+    public StringProperty getContainerProperty()
     {
         return container.textProperty();
     }
 
-    public TextField getContain()
+    public TextField getContainer()
     {
         return container;
+    }
+
+    public int getContainerValue()
+    {
+        return Integer.parseInt(container.getText());
     }
 
     public void addChangeListener(ChangeListener<? super String> listener) {

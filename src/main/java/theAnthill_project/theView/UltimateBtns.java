@@ -16,7 +16,7 @@ public class UltimateBtns extends HBox
 
     private int size = 15;
 
-    private int index_Pause_Play;
+    public static int index_Pause_Play;
 
     public UltimateBtns()
     {
@@ -32,6 +32,7 @@ public class UltimateBtns extends HBox
 
         Play_Pause.setMinHeight(25);
         Play_Pause.setMaxHeight(25);
+        Play_Pause.setAlignment(Pos.CENTER);
 
         this.changeImagePlay();
 
@@ -101,7 +102,6 @@ public class UltimateBtns extends HBox
             case 1:
             {
                 Play_Pause.setGraphic(imageViewPause);
-                index_Pause_Play=-1;
             }
         }
     }

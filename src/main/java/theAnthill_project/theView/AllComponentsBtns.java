@@ -76,7 +76,7 @@ public class AllComponentsBtns extends VBox
         return SimulationVitesse.getSlideProperty().getValue();
     }
 
-    public void updateAllComponents(int taille,int cap,int simulation,
+    public void updateAllComponents(int taille,int cap,double simulation,
                                     int nbgrains,int nbfourmis,int nbmurs)
     {
        taillePlateauJeu.updateValue(taille);

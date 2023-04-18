@@ -30,9 +30,9 @@ public class SliderContainer extends HBox {
         l.textProperty().bind(Bindings.format("vitesse simulation : %.1f", slide.valueProperty()));
         l.setAlignment(Pos.CENTER_LEFT);
     }
-    public void changeValue(int i)
+    public void changeValue(double i)
     {
-        slide.setValue((double) i);
+        slide.setValue(i);
     }
 
     public DoubleProperty getSlideProperty()

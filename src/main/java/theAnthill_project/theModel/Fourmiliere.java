@@ -1,8 +1,5 @@
 package theAnthill_project.theModel;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.scene.control.Slider;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Iterator;
@@ -19,7 +16,6 @@ import java.util.Iterator;
 
 public class Fourmiliere
 {
-
   private int largeur;
   // Le nombre maximal de graines par cases  
   private int qMax;
@@ -46,7 +42,6 @@ public class Fourmiliere
   public Fourmiliere(int l,int qMax)
   {
       largeur=l;
-      System.out.println(largeur);
       qMax = qMax ; //la quantité max de graines pour chaque cellule...
       init(largeur);
   }
@@ -58,10 +53,10 @@ public class Fourmiliere
 
       de fourmi... qu'on pourrait rajouter */
 
-      fourmis = new boolean[k+2][k+2];
-      for (int i =0 ; i < k+2 ; i++)
+      fourmis = new boolean[k][k];
+      for (int i =0 ; i < k ; i++)
       {
-          for (int j =0 ; j < k+2 ; j++)
+          for (int j =0 ; j < k ; j++)
           {
               fourmis[i][j] = false ;
           }
@@ -96,13 +91,14 @@ public class Fourmiliere
       }
   }
 
+    public void setLargeur(int l) {
+        largeur=l;
+    }
+
     public int getLargeur() {
         return largeur;
     }
 
-    public void setLargeur(int l) {
-        largeur=l;
-    }
 
     public void updateFourmiliere(int l)
     {
@@ -397,10 +393,10 @@ public class Fourmiliere
    */
   public void actualizeCellsContenu()
   {
-      evolue();
-      for (int i=0;i<largeur+2;i++)
+      //evolue();
+      for (int i=0;i<largeur;i++)
       {
-          for(int j=0;j<largeur+2;j++)
+          for(int j=0;j<largeur;j++)
           {
               if (murs[i][j])
               {
@@ -420,6 +416,16 @@ public class Fourmiliere
       }
   }
 
+  public void exempleTest()
+  {
+      murs[0][0]=true;
+      murs[0][2]=true;
+      murs[0][1]=true;
+      murs[1][10]=true;
+
+      fourmis[4][5]=true;
+      fourmis[2][20]=true;
+  }
   /**
    * Exemple de main manipulant une fourmiliere 
    *  de largeur 20 et de hauteur 10.

@@ -8,6 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import theAnthill_project.theModel.Fourmiliere;
+
+import java.util.Objects;
+
 public class TheVue extends BorderPane
 {
     private FlowPane GameVisual;
@@ -97,7 +100,7 @@ public class TheVue extends BorderPane
         //initialisation de la taille du gameTaille...
 
         l = (int) myFourmiliere.getLargeur();
-        doubleRatio = l+2;
+        doubleRatio = l;
 
         GameVisual.setMinSize(200,200);
         GameVisual.setHgap(0);
@@ -117,22 +120,12 @@ public class TheVue extends BorderPane
         {
             for(int j=0;j<doubleRatio;j++)
             {
-                cells[i][j]=new Label(".");
+                cells[i][j]=new Label("");
                 cells[i][j].setMaxWidth(10);
                 cells[i][j].setMinWidth(10);
                 cells[i][j].setMinHeight(10);
                 cells[i][j].setMaxHeight(10);
                 cells[i][j].setStyle("-fx-background-color: white;-fx-font-size: 5;-fx-alignment: center;");
-                cells[i][j].setBorder(
-                        new Border(
-                                new BorderStroke(
-                                        Paint.valueOf("BLACK"),
-                                        BorderStrokeStyle.SOLID,
-                                        new CornerRadii(1),
-                                        BorderWidths.DEFAULT
-                                )
-                        )
-                );
                 GameVisual.getChildren().add(cells[i][j]);
             }
         }
@@ -148,7 +141,6 @@ public class TheVue extends BorderPane
         setAlignment(Quit,Pos.BOTTOM_RIGHT);
 
         this.setPadding(new Insets(10));
-        this.setGrilleVisible();
     }
 
     public void updateGameVisual(int newLargeur)
@@ -157,14 +149,17 @@ public class TheVue extends BorderPane
         this.getChildren().clear();
 
         l = (int) myFourmiliere.getLargeur();
-        doubleRatio = l+2;
+        doubleRatio = l;
 
         GameVisual.setMinSize(200,200);
         GameVisual.setHgap(0);
         GameVisual.setVgap(0);
         GameVisual.setPrefWrapLength(doubleRatio*10);
 
-        components.updateAllComponents(newLargeur,10,10,10,10,10);
+        components.updateAllComponents(newLargeur,
+                components.getCapacityCase().getContainerValue(),
+                components.getSimulationVitesse(),components.getNbGrains().getContainerValue(),
+                components.getNbFourmis().getContainerValue(),components.getNbMurs().getContainerValue());
 
         // Initialisation de la table cells...
         // && Ajout de chaque cell au flowPane GameVisual...
@@ -175,22 +170,12 @@ public class TheVue extends BorderPane
         {
             for(int j=0;j<doubleRatio;j++)
             {
-                cells[i][j]=new Label(".");
+                cells[i][j]=new Label("");
                 cells[i][j].setMaxWidth(10);
                 cells[i][j].setMinWidth(10);
                 cells[i][j].setMinHeight(10);
                 cells[i][j].setMaxHeight(10);
                 cells[i][j].setStyle("-fx-background-color: white;-fx-font-size: 5;-fx-alignment: center;");
-                cells[i][j].setBorder(
-                        new Border(
-                                new BorderStroke(
-                                        Paint.valueOf("BLACK"),
-                                        BorderStrokeStyle.SOLID,
-                                        new CornerRadii(1),
-                                        BorderWidths.DEFAULT
-                                )
-                        )
-                );
                 GameVisual.getChildren().add(cells[i][j]);
             }
         }
@@ -206,6 +191,55 @@ public class TheVue extends BorderPane
         setAlignment(Quit,Pos.BOTTOM_RIGHT);
 
         this.setPadding(new Insets(10));
-        this.setGrilleVisible();
+    }
+
+    public void changeGrilleVisibility()
+    {
+        switch(UltimateBtns.index_Pause_Play)
+        {
+            case 0:
+            {
+                this.setGrilleNotVisible();
+                break;
+            }
+            case 1:
+            {
+                this.setGrilleVisible();
+                UltimateBtns.index_Pause_Play=-1;
+                break;
+            }
+        }
+    }
+
+    public void changeCellBackgroundOnContainer()
+    {
+        GameVisual.getChildren().clear();
+        for (int i=0;i<doubleRatio;i++)
+        {
+            for(int j=0;j<doubleRatio;j++)
+            {
+                if (Objects.equals(myFourmiliere.getCellContenu(i, j), "X"))
+                {
+                    cells[i][j].setStyle("-fx-background-color: " +
+                            "green;-fx-font-size: 5;-fx-alignment: center;");
+                }
+
+                else if (Objects.equals(myFourmiliere.getCellContenu(i, j), "O"))
+                {
+                    cells[i][j].setStyle("-fx-background-color: " +
+                            "red;-fx-font-size: 5;-fx-alignment: center;");
+                }
+                else
+                {
+                    cells[i][j].setStyle("-fx-background-color: " +
+                            "white;-fx-font-size: 5;-fx-alignment: center;");
+                }
+                GameVisual.getChildren().add(cells[i][j]);
+            }
+        }
+    }
+
+    public Label getCellsAt(int x,int y) {
+        return cells[x][y];
     }
 }

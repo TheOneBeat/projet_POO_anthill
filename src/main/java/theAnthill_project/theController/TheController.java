@@ -1,32 +1,32 @@
 package theAnthill_project.theController;
 
 import javafx.application.Platform;
-import javafx.beans.Observable;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.StringProperty;
 import theAnthill_project.theModel.Fourmiliere;
-import theAnthill_project.theView.AllComponentsBtns;
 import theAnthill_project.theView.TheVue;
 
-import java.util.AbstractList;
 import java.util.Objects;
 public class TheController
 {
     private TheVue vue;
     private Fourmiliere f;
-    private int size;
     public TheController(TheVue myVue, Fourmiliere anthill)
     {
         vue = myVue;
         f = anthill;
-        size = f.getLargeur();
-        System.out.println("la valeur de size est "+size);
+        OnclickLabel();
 
         //à chaque clique sur le btn play, l'image change...
+        // avec le fait d'afficher les grilles ou pas...
         vue.getComponents().getUltimateBtns().getPause_Play().
-                setOnAction(e->vue.getComponents().getUltimateBtns().changeImagePlay());
+                setOnAction(e->{
+                    vue.getComponents().getUltimateBtns().changeImagePlay();
+                    vue.changeGrilleVisibility();
+                });
 
         //Les events...
+        //event de sortie du jeu après le clique sur le bouton quit...
 
         vue.getQuit().setOnAction(e-> Platform.exit());
 
@@ -36,16 +36,22 @@ public class TheController
             try {
                 int newLargeur = Integer.parseInt(newValue);
                 if (newLargeur>50)
+                {
                     changeLargeur(50);
+                    OnclickLabel();
+                }
                 else
+                {
                     changeLargeur(newLargeur);
+                    OnclickLabel();
+                }
 
             } catch (NumberFormatException e) {
                 // Gérer l'exception si la valeur n'est pas un nombre entier
                 changeLargeur(20);
+                OnclickLabel();
             }
         });
-
 
     }
 
@@ -55,8 +61,34 @@ public class TheController
         f.updateFourmiliere(newLargeur);
         //Update de la vue
         vue.updateGameVisual(newLargeur);
+    }
 
-
+    public void OnclickLabel()
+    {
+        f.exempleTest();
+        for(int i=0;i<f.getLargeur();i++)
+        {
+            for(int j=0;j<f.getLargeur();j++)
+            {
+                int finalI = i;
+                int finalJ = j;
+                vue.getCellsAt(i,j).setOnMouseClicked(e->
+                {
+                    if (Objects.equals(f.getCellContenu(finalI, finalJ), ""))
+                    {
+                        f.setValueContenu(finalI,finalJ,"O");
+                        System.out.println("la position "+ finalJ+" "+finalI);
+                        vue.changeCellBackgroundOnContainer();
+                    }
+                    else if (Objects.equals(f.getCellContenu(finalI, finalJ), "O"))
+                    {
+                        f.setValueContenu(finalI,finalJ,"");
+                        System.out.println("la position "+ finalJ+" "+finalI);
+                        vue.changeCellBackgroundOnContainer();
+                    }
+                });
+            }
+        }
     }
 }
 
@@ -78,4 +110,5 @@ class StringBindings extends DoubleBinding
             result = Double.parseDouble(s.get());
         return result;
     }
+
 }
