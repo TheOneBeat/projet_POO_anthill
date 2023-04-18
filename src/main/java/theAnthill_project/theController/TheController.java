@@ -17,6 +17,7 @@ public class TheController
         f = anthill;
         OnclickLabel();
 
+
         //à chaque clique sur le btn play, l'image change...
         // avec le fait d'afficher les grilles ou pas...
         vue.getComponents().getUltimateBtns().getPause_Play().
@@ -28,7 +29,14 @@ public class TheController
         //Les events...
         //event de sortie du jeu après le clique sur le bouton quit...
 
+
         vue.getQuit().setOnAction(e-> Platform.exit());
+
+        //Le bouton Reset
+        vue.getComponents().getUltimateBtns().getReset()
+                .setOnAction(e->{
+                    changeLargeur(f.getLargeur());
+                });
 
         //Modification de taillePlateau...
 
@@ -38,21 +46,29 @@ public class TheController
                 if (newLargeur>50)
                 {
                     changeLargeur(50);
-                    OnclickLabel();
                 }
                 else
                 {
                     changeLargeur(newLargeur);
-                    OnclickLabel();
                 }
 
             } catch (NumberFormatException e) {
                 // Gérer l'exception si la valeur n'est pas un nombre entier
                 changeLargeur(20);
-                OnclickLabel();
             }
         });
 
+        //Modification de la capacité de grains pour chaque cellule...
+
+        vue.getComponents().addCapacityChangeListener((observable, oldValue, newValue) -> {
+            try {
+                int newLargeur = Integer.parseInt(newValue);
+                changeCapacityG(newLargeur);
+            } catch (NumberFormatException e) {
+                // Gérer l'exception si la valeur n'est pas un nombre entier
+                changeCapacityG(2);
+            }
+        });
     }
 
     public void changeLargeur(int newLargeur)
@@ -61,11 +77,20 @@ public class TheController
         f.updateFourmiliere(newLargeur);
         //Update de la vue
         vue.updateGameVisual(newLargeur);
+        OnclickLabel();
+    }
+
+    public void changeCapacityG(int cap)
+    {
+        //Update de la fourmiliere
+        //f.setQMax(cap);ça marche mais ne réinitialise pas le terrain...
+        f.updateCapFourmiliere(f.getLargeur(),cap); //reinitialise le terrain...
+        vue.updateGameVisual(f.getLargeur());
+        OnclickLabel();
     }
 
     public void OnclickLabel()
     {
-        f.exempleTest();
         for(int i=0;i<f.getLargeur();i++)
         {
             for(int j=0;j<f.getLargeur();j++)
@@ -74,17 +99,36 @@ public class TheController
                 int finalJ = j;
                 vue.getCellsAt(i,j).setOnMouseClicked(e->
                 {
-                    if (Objects.equals(f.getCellContenu(finalI, finalJ), ""))
+                    if (e.isAltDown())
                     {
-                        f.setValueContenu(finalI,finalJ,"O");
-                        System.out.println("la position "+ finalJ+" "+finalI);
+                        System.out.println("okok");
+                        f.setValueContenu(finalI,finalJ,".".concat(f.getCellContenu(finalI,finalJ)));
+                        //System.out.println("la position du grain "+ finalJ+" "+finalI);
                         vue.changeCellBackgroundOnContainer();
                     }
-                    else if (Objects.equals(f.getCellContenu(finalI, finalJ), "O"))
+                    else if (e.isShiftDown())
                     {
-                        f.setValueContenu(finalI,finalJ,"");
-                        System.out.println("la position "+ finalJ+" "+finalI);
-                        vue.changeCellBackgroundOnContainer();
+                        if (Objects.equals(f.getCellContenu(finalI, finalJ), ""))
+                        {
+                            f.setValueContenu(finalI,finalJ,"X");
+                            //System.out.println("la position "+ finalJ+" "+finalI);
+                            vue.changeCellBackgroundOnContainer();
+                        }
+                    }
+                    else
+                    {
+                        if (Objects.equals(f.getCellContenu(finalI, finalJ), ""))
+                        {
+                            f.setValueContenu(finalI,finalJ,"O");
+                            //System.out.println("la position "+ finalJ+" "+finalI);
+                            vue.changeCellBackgroundOnContainer();
+                        }
+                        else if (Objects.equals(f.getCellContenu(finalI, finalJ), "O"))
+                        {
+                            f.setValueContenu(finalI,finalJ,"");
+                            //System.out.println("la position "+ finalJ+" "+finalI);
+                            vue.changeCellBackgroundOnContainer();
+                        }
                     }
                 });
             }

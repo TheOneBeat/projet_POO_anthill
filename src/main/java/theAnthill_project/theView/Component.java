@@ -49,7 +49,13 @@ public class Component extends HBox
 
     public int getContainerValue()
     {
-        return Integer.parseInt(container.getText());
+        int result;
+        if (container.getText().equals("")) {
+            result=0;
+        }
+        else
+            result = Integer.parseInt(container.getText());
+        return result;
     }
 
     public void addChangeListener(ChangeListener<? super String> listener) {

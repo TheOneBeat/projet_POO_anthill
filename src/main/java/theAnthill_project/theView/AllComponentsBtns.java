@@ -21,7 +21,7 @@ public class AllComponentsBtns extends VBox
     {
         super();
         taillePlateauJeu = new Component("taille du plateau","25");
-        capacityCase = new Component("capacité Case","5");
+        capacityCase = new Component("capacité Case","10");
         SimulationVitesse = new SliderContainer("Vitesse Simulation");
         NbGrains = new Component("Nombre de Grains","10");
         NbFourmis = new Component("Nombre de Fourmis","4");
@@ -65,6 +65,11 @@ public class AllComponentsBtns extends VBox
     public void addTaillePlateauJeuChangeListener(ChangeListener<? super String> listener)
     {
         taillePlateauJeu.addChangeListener(listener);
+    }
+
+    public void addCapacityChangeListener(ChangeListener<? super String> listener)
+    {
+        capacityCase.addChangeListener(listener);
     }
 
     public UltimateBtns getUltimateBtns() {

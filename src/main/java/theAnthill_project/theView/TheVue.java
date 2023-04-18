@@ -229,6 +229,16 @@ public class TheVue extends BorderPane
                     cells[i][j].setStyle("-fx-background-color: " +
                             "red;-fx-font-size: 5;-fx-alignment: center;");
                 }
+                else if (myFourmiliere.getCellContenu(i, j).contains("."))
+                {
+                    int nbCount = myFourmiliere.getCellContenu(i, j).length();
+
+                    double opacity =(nbCount*0.1);
+                    System.out.println("le nombre de grains est "+nbCount);
+                    cells[i][j].setStyle("-fx-background-color: " +
+                            "blue;-fx-font-size: 5;-fx-alignment: center;" +
+                            "-fx-opacity: "+opacity+";");
+                }
                 else
                 {
                     cells[i][j].setStyle("-fx-background-color: " +
