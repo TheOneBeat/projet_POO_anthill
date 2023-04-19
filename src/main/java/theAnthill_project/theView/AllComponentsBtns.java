@@ -46,13 +46,19 @@ public class AllComponentsBtns extends VBox
         return NbFourmis;
     }
 
+    public int getNumberFourmis(){return NbFourmis.getContainerValue();}
+
     public Component getNbGrains() {
         return NbGrains;
     }
 
+    public int getNumberGrains(){return NbGrains.getContainerValue();}
+
     public Component getNbMurs() {
         return NbMurs;
     }
+
+    public int getNumberMurs(){return NbMurs.getContainerValue();}
 
     public Component getCapacityCase() {
         return capacityCase;
@@ -81,6 +87,7 @@ public class AllComponentsBtns extends VBox
         return SimulationVitesse.getSlideProperty().getValue();
     }
 
+    public SliderContainer getSlider(){return SimulationVitesse;}
     public void updateAllComponents(int taille,int cap,double simulation,
                                     int nbgrains,int nbfourmis,int nbmurs)
     {
@@ -90,5 +97,15 @@ public class AllComponentsBtns extends VBox
        NbMurs.updateValue(nbmurs);
        NbFourmis.updateValue(nbfourmis);
        NbGrains.updateValue(nbgrains);
+    }
+
+    public void setDisableAllComponents(boolean b)
+    {
+        taillePlateauJeu.setDisable(b);
+        capacityCase.setDisable(b);
+        NbMurs.setDisable(b);
+        NbGrains.setDisable(b);
+        NbFourmis.setDisable(b);
+        SimulationVitesse.setDisable(b);
     }
 }

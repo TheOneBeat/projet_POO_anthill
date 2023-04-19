@@ -23,6 +23,19 @@ public class UltimateBtns extends HBox
         super();
         index_Pause_Play = -1;
 
+        //Reset...
+        Reset = new Button();
+        Image imageReset = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/theAnthill_project/Images/reset.png")),size, size, true, true);
+        ImageView imageViewReset = new ImageView(imageReset);
+        Reset.setGraphic(imageViewReset);
+        Reset.setAlignment(Pos.CENTER);
+
+        Reset.setMaxWidth(50);
+        Reset.setMinWidth(50);
+
+        Reset.setMinHeight(25);
+        Reset.setMaxHeight(25);
+
         //Play
 
         Play_Pause = new Button();
@@ -50,19 +63,6 @@ public class UltimateBtns extends HBox
         Loop.setMinHeight(25);
         Loop.setMaxHeight(25);
 
-        //Reset
-
-        Reset = new Button();
-        Image imageReset = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/theAnthill_project/Images/reset.png")),size, size, true, true);
-        ImageView imageViewReset = new ImageView(imageReset);
-        Reset.setGraphic(imageViewReset);
-        Reset.setAlignment(Pos.CENTER);
-
-        Reset.setMaxWidth(50);
-        Reset.setMinWidth(50);
-
-        Reset.setMinHeight(25);
-        Reset.setMaxHeight(25);
 
         this.setMinWidth(170);
         this.setMaxWidth(170);
@@ -97,12 +97,19 @@ public class UltimateBtns extends HBox
             case 0:
             {
                 Play_Pause.setGraphic(imageViewPlay);
+                setDisableUltimateBtns(true);
                 break;
             }
             case 1:
             {
                 Play_Pause.setGraphic(imageViewPause);
+                setDisableUltimateBtns(false);
             }
         }
+    }
+
+    public void setDisableUltimateBtns(boolean b)
+    {
+        Reset.setDisable(b);
     }
 }

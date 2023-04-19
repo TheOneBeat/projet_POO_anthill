@@ -3,20 +3,57 @@ package theAnthill_project.theController;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
+import theAnthill_project.theModel.Fourmi;
 import theAnthill_project.theModel.Fourmiliere;
 import theAnthill_project.theView.TheVue;
+import theAnthill_project.theView.UltimateBtns;
 
+import java.util.Iterator;
 import java.util.Objects;
+
 public class TheController
 {
     private TheVue vue;
     private Fourmiliere f;
+
+    private final Service<Void> taskservice;
+
+    private static final int INITIAL_SPEED = 1000; // 1000 millisecondes = 1 seconde
+    private int currentSpeed = INITIAL_SPEED;
+    // Valeur initiale en millisecondes
+
+
     public TheController(TheVue myVue, Fourmiliere anthill)
     {
         vue = myVue;
         f = anthill;
         OnclickLabel();
 
+        taskservice = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception
+                    {
+                        do {
+                            f.evolue();
+                            // Utilisez Platform.runLater pour appeler cette méthode sur le thread JavaFX
+                            Platform.runLater(() -> {
+                                vue.changeCellBackgroundOnContainer();
+                            });
+                            Thread.sleep(currentSpeed);
+                        } while (!isCancelled());
+                        return null;
+                    }
+                };
+            }
+        };
 
         //à chaque clique sur le btn play, l'image change...
         // avec le fait d'afficher les grilles ou pas...
@@ -24,8 +61,12 @@ public class TheController
                 setOnAction(e->{
                     vue.getComponents().getUltimateBtns().changeImagePlay();
                     vue.changeGrilleVisibility();
+                    if (UltimateBtns.index_Pause_Play==0)
+                        execute();
+                    else
+                        taskservice
+                                .cancel();
                 });
-
         //Les events...
         //event de sortie du jeu après le clique sur le bouton quit...
 
@@ -44,13 +85,9 @@ public class TheController
             try {
                 int newLargeur = Integer.parseInt(newValue);
                 if (newLargeur>50)
-                {
                     changeLargeur(50);
-                }
                 else
-                {
                     changeLargeur(newLargeur);
-                }
 
             } catch (NumberFormatException e) {
                 // Gérer l'exception si la valeur n'est pas un nombre entier
@@ -69,6 +106,18 @@ public class TheController
                 changeCapacityG(2);
             }
         });
+
+        //la vitesse d'execution du service
+
+        vue.getComponents().getSlider().getSlideProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                double value = t1.doubleValue();
+                currentSpeed = (int)(INITIAL_SPEED/value);
+            }
+        });
+
+
     }
 
     public void changeLargeur(int newLargeur)
@@ -101,7 +150,7 @@ public class TheController
                 {
                     if (e.isAltDown())
                     {
-                        System.out.println("okok");
+                        //System.out.println("okok");
                         f.setValueContenu(finalI,finalJ,".".concat(f.getCellContenu(finalI,finalJ)));
                         //System.out.println("la position du grain "+ finalJ+" "+finalI);
                         vue.changeCellBackgroundOnContainer();
@@ -134,25 +183,53 @@ public class TheController
             }
         }
     }
-}
 
-class StringBindings extends DoubleBinding
-{
-    private final StringProperty s;
-    public StringBindings(StringProperty t)
+    public void execute()
     {
-        s=t;
-        bind(s);
-    }
+        System.out.println("execution enclenchée - no modif \n");
+        vue.getComponents().setDisableAllComponents(true);
+        vue.getComponents().getUltimateBtns().setDisableUltimateBtns(true);
 
-    @Override
-    protected double computeValue() {
-        double result;
-        if (Objects.equals(s.get(), "") || Double.parseDouble(s.get())<20)
-            result=20;
-        else
-            result = Double.parseDouble(s.get());
-        return result;
-    }
+        if (taskservice.isRunning()) {
+            taskservice.cancel();
+        }
 
+        taskservice.stateProperty().addListener(new ChangeListener<Worker.State>() {
+            @Override
+            public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State state, Worker.State t1) {
+                switch (t1)
+                {
+                    case FAILED, CANCELLED->
+                    {
+                        System.out.println("the service failed");
+                        vue.getComponents().setDisableAllComponents(false);
+                        vue.getComponents().getUltimateBtns().setDisableUltimateBtns(false);
+                        //changeLargeur(f.getLargeur());
+                        //taskservice.reset();
+                    }
+                    case SUCCEEDED ->
+                    {
+                        System.out.println("the service succeeded");
+                        vue.getComponents().setDisableAllComponents(false);
+                        vue.getComponents().getUltimateBtns().setDisableUltimateBtns(false);
+                        changeLargeur(f.getLargeur());
+                        taskservice.reset();
+                    }
+                }
+            }
+        });
+
+        // Ajouter un gestionnaire d'exceptions pour le service
+        taskservice.setOnFailed(workerStateEvent -> {
+            Throwable exception = taskservice.getException();
+            if (exception != null) {
+                exception.printStackTrace();
+            } else {
+                System.out.println("Le service a échoué sans exception.");
+            }
+        });
+
+        taskservice.reset();
+        taskservice.start();
+    }
 }

@@ -113,11 +113,10 @@ public class Fourmiliere {
 
         if (cellValues[y][x].equals("")||cellValues[y][x].contains("."))
         {
-
             if (s.contains(".") && qteGraines[y][x]+1<=qMax)
             {
                 qteGraines[y][x]+=1;
-                System.out.println("la capacite max est fixé à "+qMax);
+                //System.out.println("la capacite max est fixé à "+qMax);
                 cellValues[y][x] = s;
             }
 
@@ -168,15 +167,23 @@ public class Fourmiliere {
      * @param y abcisse
      * @return le nombre de graines
      */
-    private int compteGrainesVoisines(int x, int y) {
+    public int compteGrainesVoisines(int x, int y)
+    {
         int nb = 0;
         for (int vx = -1; vx < 2; vx++) {
             for (int vy = -1; vy < 2; vy++) {
-                if (!cellValues[y + vy][x + vx].equals("O"))
-                    nb = nb + qteGraines[y + vy][x + vx];
+                if ((x+vx >=0) && (x+vx < largeur) && (y+vy>=0) && (y+vy< largeur))
+                {
+                    if (!cellValues[y + vy][x + vx].equals("O") && !cellValues[y + vy][x + vx].equals("X"))
+                        nb = nb + qteGraines[y + vy][x + vx];
+                }
             }
         }
         return nb;
+    }
+
+    public List<Fourmi> getLesFourmis() {
+        return lesFourmis;
     }
 
     /**
@@ -191,19 +198,22 @@ public class Fourmiliere {
      * on choisit aléatoirement de poser ou non  la graine,
      * en fonction du nombre de graines autour.
      */
-    public void evolue() {
-        Iterator<Fourmi> ItFourmi = lesFourmis.iterator();
-        while (ItFourmi.hasNext()) {
-            Fourmi f = ItFourmi.next();
+    public void evolue()
+    {
+        for(int i=0;i<lesFourmis.size();i++)
+        {
+            Fourmi f = lesFourmis.get(i);
             int posX = f.getX();
             int posY = f.getY();
+            //System.out.printf("la position X %d la position Y %d %n",posX,posY);
             // la fourmi f prend ?
-            if (!f.porte() && qteGraines[f.getY()][f.getX()] > 0)
+            if (!f.porte() && qteGraines[posY][posX] > 0)
             {
                 if (Math.random() < Fourmi.probaPrend(compteGrainesVoisines(posX, posY))) {
                     f.prend();
                     qteGraines[posY][posX]--;
                 }
+
             }
             // la fourmi f se déplace.
             int deltaX;
@@ -215,7 +225,8 @@ public class Fourmiliere {
                 deltaX = posX;
                 deltaY = posY;
                 int tirage = (int) (Math.random() * 7.99999999);
-                switch (tirage) {
+                switch (tirage)
+                {
                     case 0:
                         deltaX--;
                         deltaY--;
@@ -247,13 +258,22 @@ public class Fourmiliere {
                 }
                 // On tire au sort jusqu'a ce qu'on soit tombe sur une case vide
                 // ou bien qu'on ait essayé 99 fois.
-            } while ((cellValues[deltaY][deltaX].equals("O") || cellValues[deltaY][deltaX].equals("X")) && cptEssai < 100);
+            } while ((deltaX < 0 || deltaX >= largeur || deltaY < 0 || deltaY >= largeur) // Vérifiez les limites
+                    || ((cellValues[deltaY][deltaX].equals("O")
+                    || cellValues[deltaY][deltaX].equals("X")) && cptEssai < 100));
+
+            //setValueContenu(f.getX(), f.getY(), "");
+            cellValues[posY][posX]="";
             f.setX(deltaX);
             f.setY(deltaY);
+            //setValueContenu(deltaX,deltaY,"X");
+            cellValues[deltaY][deltaX]="X";
+            System.out.printf("la fourmi à la position x %d et y %d s'est deplacé au %d %d %n",posX,posY,deltaX,deltaY);
             // la fourmi pose ?
             if (f.porte() && qteGraines[deltaY][deltaX] < qMax) {
                 if (Math.random() < Fourmi.probaPose(compteGrainesVoisines(deltaX, deltaY))) {
                     f.pose();
+                    System.out.printf("la fourmi qui vient de se déplacer au %d %d a bougé un grain %n",deltaX,deltaY);
                     qteGraines[deltaY][deltaX]++;
                 }
             }
