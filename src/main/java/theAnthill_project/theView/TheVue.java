@@ -150,10 +150,12 @@ public class TheVue extends BorderPane
 
     public void updateGameVisual(int newLargeur)
     {
+        System.out.printf("entrée dans la fonction updateGameVisual %n");
         GameVisual.getChildren().clear();
         this.getChildren().clear();
 
         l = (int) myFourmiliere.getLargeur();
+        System.out.printf("stockage de la nouvelle largeur du model %n");
         doubleRatio = l;
 
         GameVisual.setMinSize(200,200);
@@ -161,11 +163,14 @@ public class TheVue extends BorderPane
         GameVisual.setVgap(0);
         GameVisual.setPrefWrapLength(doubleRatio*10);
 
+        System.out.printf("Modification du terrain %n");
+
         components.updateAllComponents(newLargeur,
                 components.getCapacityCase().getContainerValue(),
                 components.getSimulationVitesse(),components.getNbGrains().getContainerValue(),
                 components.getNbFourmis().getContainerValue(),components.getNbMurs().getContainerValue());
 
+        System.out.printf("Mise à jour des composants du terrain %n");
         // Initialisation de la table cells...
         // && Ajout de chaque cell au flowPane GameVisual...
 
@@ -196,11 +201,16 @@ public class TheVue extends BorderPane
         setAlignment(Quit,Pos.BOTTOM_RIGHT);
 
         this.setPadding(new Insets(10));
+        System.out.printf("finition de updateGameVisual de la vue %n");
 
         //Initialiser le terrain avec les paramètres de l'utilisateur...
         this.updateContainerFourmiliere();
+
+        System.out.printf("appel de la fonction pour remplir le terrain à initialisation du game %n");
+        //
         //mise à jour du terrain...
         this.changeCellBackgroundOnContainer();
+        System.out.printf("mise à jour de la vue du game %n");
     }
 
     public void changeGrilleVisibility()
@@ -210,12 +220,11 @@ public class TheVue extends BorderPane
             case 0:
             {
                 this.setGrilleNotVisible();
-                this.setGrilleVisible();
                 break;
             }
             case 1:
             {
-                this.setGrilleNotVisible();
+                this.setGrilleVisible();
                 UltimateBtns.index_Pause_Play=-1;
                 break;
             }
@@ -257,15 +266,19 @@ public class TheVue extends BorderPane
 
     //fonction pour mettre à jour la fourmilière au tout debut
     //lorsque l'utilisateur définie les paramètres du jeu...
-    public void updateContainerFourmiliere()
-    {
+
+    public void updateContainerFourmiliere() {
+        System.out.printf("entree dans la fonction updateContainerFourmiliere %n");
         int min = 0, max = myFourmiliere.getLargeur() - 1;
         Random random = new Random();
         int fourmisCount = 0, grainsCount = 0, mursCount = 0;
+        int maxAttempts = 10000; // Limite le nombre d'essais pour placer les éléments.
+        int attempts = 0;
 
-        while (fourmisCount < components.getNumberFourmis() ||
+        System.out.printf("entree dans le while de la fonction updateContainerFourmiliere %n");
+        while ((fourmisCount < components.getNumberFourmis() ||
                 grainsCount < components.getNumberGrains() ||
-                mursCount < components.getNumberMurs()) {
+                mursCount < components.getNumberMurs()) && attempts < maxAttempts) {
 
             int x = random.nextInt(max - min + 1) + min;
             int y = random.nextInt(max - min + 1) + min;
@@ -274,15 +287,24 @@ public class TheVue extends BorderPane
                 if (fourmisCount < components.getNumberFourmis()) {
                     myFourmiliere.setValueContenu(x, y, "X");
                     fourmisCount++;
+                    System.out.printf("on met les fourmis %n");
                 } else if (grainsCount < components.getNumberGrains()) {
                     int nbCountGrains = random.nextInt(myFourmiliere.getQMax() + 1);
                     myFourmiliere.setValueContenu(x, y, ".".repeat(nbCountGrains));
                     grainsCount++;
+                    System.out.printf("on met les grains %n");
                 } else if (mursCount < components.getNumberMurs()) {
                     myFourmiliere.setValueContenu(x, y, "O");
                     mursCount++;
+                    System.out.printf("on met les murs %n");
                 }
             }
+
+            attempts++; // Incrémente le compteur d'essais.
+        }
+
+        if (attempts >= maxAttempts) {
+            System.out.println("Le nombre maximum d'essais a été atteint. Veuillez réessayer avec un autre nombre d'éléments.");
         }
     }
 

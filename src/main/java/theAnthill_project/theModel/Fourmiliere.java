@@ -37,6 +37,7 @@ public class Fourmiliere {
     {
         qMax=qm;
         this.lesFourmis = new LinkedList<Fourmi>();
+
       /*à modifier en ajouter une limite
 
       de fourmi... qu'on pourrait rajouter */
@@ -65,7 +66,8 @@ public class Fourmiliere {
         return largeur;
     }
 
-    public void updateFourmiliere(int l) {
+    public void updateFourmiliere(int l)
+    {
         setLargeur(l);
         inits(largeur,qMax);
     }

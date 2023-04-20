@@ -1,19 +1,15 @@
 package theAnthill_project.theController;
 
 import javafx.application.Platform;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
-import theAnthill_project.theModel.Fourmi;
 import theAnthill_project.theModel.Fourmiliere;
 import theAnthill_project.theView.TheVue;
 import theAnthill_project.theView.UltimateBtns;
 
-import java.util.Iterator;
 import java.util.Objects;
 
 public class TheController
@@ -48,6 +44,8 @@ public class TheController
                                 vue.changeCellBackgroundOnContainer();
                             });
                             Thread.sleep(currentSpeed);
+                            if (isCancelled())
+                                break;
                         } while (!isCancelled());
                         return null;
                     }
@@ -61,12 +59,15 @@ public class TheController
                 setOnAction(e->{
                     vue.getComponents().getUltimateBtns().changeImagePlay();
                     vue.changeGrilleVisibility();
+
                     if (UltimateBtns.index_Pause_Play==0)
                         execute();
                     else
                         taskservice
                                 .cancel();
+
                 });
+
         //Les events...
         //event de sortie du jeu après le clique sur le bouton quit...
 
@@ -85,9 +86,15 @@ public class TheController
             try {
                 int newLargeur = Integer.parseInt(newValue);
                 if (newLargeur>50)
+                {
+                    taskservice.reset();//ce que je viens d'ajouter
                     changeLargeur(50);
+                }
                 else
+                {
+                    taskservice.reset();//ce que je viens d'ajouter
                     changeLargeur(newLargeur);
+                }
 
             } catch (NumberFormatException e) {
                 // Gérer l'exception si la valeur n'est pas un nombre entier
@@ -117,16 +124,20 @@ public class TheController
             }
         });
 
-
+        //modification du nombre de murs
+        //modification du nombre de fourmis
     }
 
     public void changeLargeur(int newLargeur)
     {
         //Update de la fourmiliere
         f.updateFourmiliere(newLargeur);
+        System.out.printf("updateFourmilière réussi de l%n");
         //Update de la vue
         vue.updateGameVisual(newLargeur);
+        System.out.printf("updateGameVisual de la vue réussi de l%n");
         OnclickLabel();
+        System.out.printf(" OnclickLabel du controller réussi de l%n");
     }
 
     public void changeCapacityG(int cap)
@@ -204,8 +215,7 @@ public class TheController
                         System.out.println("the service failed");
                         vue.getComponents().setDisableAllComponents(false);
                         vue.getComponents().getUltimateBtns().setDisableUltimateBtns(false);
-                        //changeLargeur(f.getLargeur());
-                        //taskservice.reset();
+                        taskservice.reset();
                     }
                     case SUCCEEDED ->
                     {
