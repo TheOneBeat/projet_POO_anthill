@@ -124,8 +124,53 @@ public class TheController
             }
         });
 
-        //modification du nombre de murs
         //modification du nombre de fourmis
+
+        vue.getComponents().addFourmisChangeListener((observableValue, s, t1) ->
+        {
+            try
+            {
+                int newValue = Integer.parseInt(t1);
+                changeNbFourmis(newValue);
+            }
+            catch (NumberFormatException e)
+            {
+                changeNbFourmis(0);
+            }
+        });
+
+
+        //modification du nombre de murs
+
+        vue.getComponents().addMursChangeListener((observableValue, s, t1) ->
+        {
+            try
+            {
+                int newValue = Integer.parseInt(t1);
+                changeNbMurs(newValue);
+            }
+            catch (NumberFormatException e)
+            {
+                changeNbMurs(0);
+            }
+        });
+
+        //modification du nombre de grains au total sur le terrain...
+        // indépendamment de la capacité des cellules
+
+        vue.getComponents().addGrainsChangeListener((observableValue, s, t1) ->
+        {
+            try
+            {
+                int newValue = Integer.parseInt(t1);
+                changeNbGrains(newValue);
+            }
+            catch (NumberFormatException e)
+            {
+                changeNbGrains(0);
+            }
+        });
+
     }
 
     public void changeLargeur(int newLargeur)
@@ -146,6 +191,27 @@ public class TheController
         //f.setQMax(cap);ça marche mais ne réinitialise pas le terrain...
         f.updateCapFourmiliere(f.getLargeur(),cap); //reinitialise le terrain...
         vue.updateGameVisual(f.getLargeur());
+        OnclickLabel();
+    }
+
+    public void changeNbFourmis(int value)
+    {
+        f.updateFourmiliere(f.getLargeur());
+        vue.updateGameVisualNbFourmi(value);
+        OnclickLabel();
+    }
+
+    public void changeNbMurs(int murs)
+    {
+        f.updateFourmiliere(f.getLargeur());
+        vue.updateGameVisualNbMurs(murs);
+        OnclickLabel();
+    }
+
+    public void changeNbGrains(int grains)
+    {
+        f.updateFourmiliere(f.getLargeur());
+        vue.updateGameVisualNbGrains(grains);
         OnclickLabel();
     }
 

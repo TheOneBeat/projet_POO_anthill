@@ -5,7 +5,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 
-
 public class AllComponentsBtns extends VBox
 {
     private Component taillePlateauJeu;
@@ -36,7 +35,6 @@ public class AllComponentsBtns extends VBox
         this.setAlignment(Pos.CENTER);
         this.setMinHeight(250);
         this.setMinWidth(250);
-        //this.setStyle("-fx-background-color: red");
 
         this.getChildren().addAll(taillePlateauJeu,capacityCase,
                 SimulationVitesse,NbGrains,NbFourmis,NbMurs,btns);
@@ -68,20 +66,39 @@ public class AllComponentsBtns extends VBox
         return taillePlateauJeu;
     }
 
+    //EventListener pour modifier la taille du plateau
     public void addTaillePlateauJeuChangeListener(ChangeListener<? super String> listener)
     {
         taillePlateauJeu.addChangeListener(listener);
     }
 
+    //EventListener pour modifier la capacité du plateau
     public void addCapacityChangeListener(ChangeListener<? super String> listener)
     {
         capacityCase.addChangeListener(listener);
     }
 
+    //EventListener pour modifier le nombre de fourmis
+    public void addFourmisChangeListener(ChangeListener<? super String> listener)
+    {
+        NbFourmis.addChangeListener(listener);
+    }
+
+    //EventListener pour modifier le nombre de murs
+    public void addMursChangeListener(ChangeListener<? super String> listener)
+    {
+        NbMurs.addChangeListener(listener);
+    }
+
+    //EventListener pour modifier le nombre de murs
+    public void addGrainsChangeListener(ChangeListener<? super String> listener)
+    {
+        NbGrains.addChangeListener(listener);
+    }
+
     public UltimateBtns getUltimateBtns() {
         return btns;
     }
-
     public Double getSimulationVitesse()
     {
         return SimulationVitesse.getSlideProperty().getValue();

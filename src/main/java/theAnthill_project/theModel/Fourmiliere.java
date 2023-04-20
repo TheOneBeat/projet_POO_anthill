@@ -1,7 +1,6 @@
 package theAnthill_project.theModel;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Iterator;
 
 
 public class Fourmiliere {
@@ -282,12 +281,5 @@ public class Fourmiliere {
             ;
         }
     }
-
-    /*
-    fonction ajoutée en plus... pour actualiser le contenu des  cases...
-
-    et faire evolé le jeu...
-
-     */
 
 }
