@@ -111,6 +111,8 @@ public class Fourmiliere {
     //Ce que j'ai rajouté...
     public void setValueContenu(int x, int y, String s)
     {
+        if (cellValues[y][x].equals("O") && s.equals(""))
+            cellValues[y][x]=s;
 
         if (cellValues[y][x].equals("")||cellValues[y][x].contains("."))
         {

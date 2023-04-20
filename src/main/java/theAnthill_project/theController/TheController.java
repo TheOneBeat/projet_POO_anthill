@@ -278,7 +278,7 @@ public class TheController
                 {
                     case FAILED, CANCELLED->
                     {
-                        System.out.println("the service failed");
+                        System.out.println("the service is cancelled");
                         vue.getComponents().setDisableAllComponents(false);
                         vue.getComponents().getUltimateBtns().setDisableUltimateBtns(false);
                         taskservice.reset();

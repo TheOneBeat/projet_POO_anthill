@@ -480,7 +480,7 @@ public class TheVue extends BorderPane
 
     public void updateContainerFourmiliere()
     {
-        resetFourmiliere();
+        //resetFourmiliere();
         System.out.printf("entree dans la fonction updateContainerFourmiliere %n");
         int min = 0, max = myFourmiliere.getLargeur() - 1;
         Random random = new Random();
