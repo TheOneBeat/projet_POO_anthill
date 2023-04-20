@@ -208,15 +208,16 @@ public class Fourmiliere {
             Fourmi f = lesFourmis.get(i);
             int posX = f.getX();
             int posY = f.getY();
-            //System.out.printf("la position X %d la position Y %d %n",posX,posY);
+
             // la fourmi f prend ?
             if (!f.porte() && qteGraines[posY][posX] > 0)
             {
-                if (Math.random() < Fourmi.probaPrend(compteGrainesVoisines(posX, posY))) {
+                if (Math.random() < Fourmi.probaPrend(compteGrainesVoisines(posX, posY)))
+                {
                     f.prend();
                     qteGraines[posY][posX]--;
+                    System.out.printf("la fourmi a pris le grain %n");
                 }
-
             }
             // la fourmi f se déplace.
             int deltaX;
@@ -265,22 +266,66 @@ public class Fourmiliere {
                     || ((cellValues[deltaY][deltaX].equals("O")
                     || cellValues[deltaY][deltaX].equals("X")) && cptEssai < 100));
 
-            //setValueContenu(f.getX(), f.getY(), "");
+            boolean thefinalSpot = false;
             cellValues[posY][posX]="";
-            f.setX(deltaX);
-            f.setY(deltaY);
-            //setValueContenu(deltaX,deltaY,"X");
-            cellValues[deltaY][deltaX]="X";
-            System.out.printf("la fourmi à la position x %d et y %d s'est deplacé au %d %d %n",posX,posY,deltaX,deltaY);
+            int xx = -1,yy = -1;
+            //System.out.printf("la fourmi à la position x %d et y %d s'est deplacé au %d %d %n",posX,posY,deltaX,deltaY);
             // la fourmi pose ?
-            if (f.porte() && qteGraines[deltaY][deltaX] < qMax) {
-                if (Math.random() < Fourmi.probaPose(compteGrainesVoisines(deltaX, deltaY))) {
+            if (f.porte() && qteGraines[deltaY][deltaX] < qMax)
+            {
+
+                if (Math.random() < Fourmi.probaPose(compteGrainesVoisines(deltaX, deltaY)))
+                {
+                    System.out.printf("Je vais poser %n");
                     f.pose();
-                    System.out.printf("la fourmi qui vient de se déplacer au %d %d a bougé un grain %n",deltaX,deltaY);
+                    //poser un grain ici avec la fonction setCellContenu ici...
+                    //et déplacer la fourmi en conséquence...
+                    //il faut 2 instructions
+                    boolean theEnd = true;
+
+                    //première instruction
+                    while(theEnd)
+                    {
+                        for (int vx = -2; vx < 4; vx++)
+                        {
+                            for (int vy = -2; vy < 4; vy++)
+                            {
+                                if ((deltaX + vx >= 0) && (deltaX + vx < largeur) && (deltaY + vy >= 0)
+                                        && (deltaY + vy < largeur))
+                                {
+                                    if (cellValues[deltaY + vy][deltaX + vx].equals(""))
+                                    {
+                                        cellValues[deltaY][deltaX] = "";
+                                        xx=deltaX+vx;
+                                        yy=deltaY+vy;
+                                        theEnd = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    //deuxième instruction
+                    //je pose le grain...
+                    thefinalSpot = true;
+                    cellValues[deltaY][deltaX] = "";
+                    f.setX(xx);
+                    f.setY(yy);
+                    //cellValues[yy][xx] = "X";
+                    setValueContenu(deltaX,deltaY,".");
+                    System.out.printf("la fourmi a posé un grain au pos %d %d %n",deltaX,deltaY);
                     qteGraines[deltaY][deltaX]++;
                 }
             }
             ;
+            if (thefinalSpot)
+                cellValues[yy][xx]="";
+            else
+            {
+                f.setX(deltaX);
+                f.setY(deltaY);
+                cellValues[deltaY][deltaX]="X";
+            }
         }
     }
 
