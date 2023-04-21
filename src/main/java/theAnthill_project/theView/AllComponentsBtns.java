@@ -99,6 +99,8 @@ public class AllComponentsBtns extends VBox
     public UltimateBtns getUltimateBtns() {
         return btns;
     }
+
+    public SliderContainer getSimulation(){return SimulationVitesse;}
     public Double getSimulationVitesse()
     {
         return SimulationVitesse.getSlideProperty().getValue();
@@ -123,6 +125,6 @@ public class AllComponentsBtns extends VBox
         NbMurs.setDisable(b);
         NbGrains.setDisable(b);
         NbFourmis.setDisable(b);
-        SimulationVitesse.setDisable(b);
+        //SimulationVitesse.setDisable(b);
     }
 }

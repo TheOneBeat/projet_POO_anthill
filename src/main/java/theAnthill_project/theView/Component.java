@@ -1,6 +1,5 @@
 package theAnthill_project.theView;
 
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -37,22 +36,11 @@ public class Component extends HBox
         this.getChildren().addAll(name,container);
     }
 
-    public StringProperty getContainerProperty()
-    {
-        return container.textProperty();
-    }
-
-    public TextField getContainer()
-    {
-        return container;
-    }
-
     public int getContainerValue()
     {
         int result;
-        if (container.getText().equals("")) {
+        if (container.getText().equals(""))
             result=0;
-        }
         else
             result = Integer.parseInt(container.getText());
         return result;

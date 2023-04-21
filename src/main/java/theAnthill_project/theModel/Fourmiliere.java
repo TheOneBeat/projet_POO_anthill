@@ -276,7 +276,7 @@ public class Fourmiliere {
 
                 if (Math.random() < Fourmi.probaPose(compteGrainesVoisines(deltaX, deltaY)))
                 {
-                    System.out.printf("Je vais poser %n");
+                    //System.out.printf("Je vais poser %n");
                     f.pose();
                     //poser un grain ici avec la fonction setCellContenu ici...
                     //et déplacer la fourmi en conséquence...
@@ -313,7 +313,7 @@ public class Fourmiliere {
                     f.setY(yy);
                     //cellValues[yy][xx] = "X";
                     setValueContenu(deltaX,deltaY,".");
-                    System.out.printf("la fourmi a posé un grain au pos %d %d %n",deltaX,deltaY);
+                    //System.out.printf("la fourmi a posé un grain au pos %d %d %n",deltaX,deltaY);
                     qteGraines[deltaY][deltaX]++;
                 }
             }

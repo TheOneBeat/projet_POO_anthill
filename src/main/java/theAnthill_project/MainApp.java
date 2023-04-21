@@ -1,8 +1,6 @@
 package theAnthill_project;
 
 import javafx.application.Application;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import theAnthill_project.theController.TheController;
@@ -14,14 +12,13 @@ public class MainApp extends Application
     @Override
     public void start(Stage stage)
     {
-        stage.setTitle("La fourmilière game");
+        stage.setTitle("The anthill's game");
 
-        Fourmiliere Model = new Fourmiliere(25,10);
+        Fourmiliere Model = new Fourmiliere(50,10);
 
         TheVue Vue = new TheVue(Model);
 
         TheController Controller = new TheController(Vue,Model);
-
 
         Scene scene = new Scene(Vue);
         stage.setScene(scene);

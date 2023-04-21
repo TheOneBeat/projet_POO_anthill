@@ -3,12 +3,13 @@ package theAnthill_project.theView;
 import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
+import javafx.stage.Stage;
 import theAnthill_project.theModel.Fourmiliere;
-
 import java.util.Objects;
 import java.util.Random;
 
@@ -21,10 +22,10 @@ public class TheVue extends BorderPane
     private Fourmiliere myFourmiliere;
     private AllComponentsBtns components;
     private Button Quit;
+    private LabelsInfo Info;
     public TheVue(Fourmiliere anthill)
     {
         super();
-
         initVue(anthill);
     }
     public DoubleProperty getGameVisualHeightProp()
@@ -111,6 +112,7 @@ public class TheVue extends BorderPane
         components = new AllComponentsBtns();
 
         Quit = new Button("Quit");
+        Info = new LabelsInfo();
 
         // Initialisation de la table cells...
         // && Ajout de chaque cell au flowPane GameVisual...
@@ -133,6 +135,8 @@ public class TheVue extends BorderPane
 
         GameVisual.setStyle("-fx-background-color: white");
         GameVisual.setAlignment(Pos.CENTER);
+        setTop(Info);
+        setAlignment(Info,Pos.TOP_CENTER);
         setLeft(GameVisual);
         setAlignment(GameVisual, Pos.CENTER_LEFT);
         setRight(components);
@@ -176,6 +180,9 @@ public class TheVue extends BorderPane
         // && Ajout de chaque cell au flowPane GameVisual...
 
         cells = new Label[doubleRatio][doubleRatio];
+        Info = new LabelsInfo();
+        setTop(Info);
+        setAlignment(Info,Pos.TOP_CENTER);
 
         for (int i=0;i<doubleRatio;i++)
         {
@@ -242,6 +249,9 @@ public class TheVue extends BorderPane
         // && Ajout de chaque cell au flowPane GameVisual...
 
         cells = new Label[doubleRatio][doubleRatio];
+        Info = new LabelsInfo();
+        setTop(Info);
+        setAlignment(Info,Pos.TOP_CENTER);
 
         for (int i=0;i<doubleRatio;i++)
         {
@@ -309,6 +319,9 @@ public class TheVue extends BorderPane
         // && Ajout de chaque cell au flowPane GameVisual...
 
         cells = new Label[doubleRatio][doubleRatio];
+        Info = new LabelsInfo();
+        setTop(Info);
+        setAlignment(Info,Pos.TOP_CENTER);
 
         for (int i=0;i<doubleRatio;i++)
         {
@@ -375,6 +388,9 @@ public class TheVue extends BorderPane
         // && Ajout de chaque cell au flowPane GameVisual...
 
         cells = new Label[doubleRatio][doubleRatio];
+        Info = new LabelsInfo();
+        setTop(Info);
+        setAlignment(Info,Pos.TOP_CENTER);
 
         for (int i=0;i<doubleRatio;i++)
         {
@@ -435,17 +451,24 @@ public class TheVue extends BorderPane
 
     public void changeCellBackgroundOnContainer()
     {
+        int nbAnts=0,nbMurs=0,nbGrains=0;
         for (int i = 0; i < doubleRatio; i++)
         {
             for (int j = 0; j < doubleRatio; j++)
             {
                 if (Objects.equals(myFourmiliere.getCellContenu(i, j), "X"))
+                {
                     cells[i][j].setStyle("-fx-background-color: green;-fx-font-size: 5;" +
                             "-fx-alignment: center;");
+                    nbAnts++;
+                }
 
                 else if (Objects.equals(myFourmiliere.getCellContenu(i, j), "O"))
+                {
                     cells[i][j].setStyle("-fx-background-color: red;-fx-font-size: 5;" +
                             "-fx-alignment: center;");
+                    nbMurs++;
+                }
 
                 else if (myFourmiliere.getCellContenu(i, j).contains("."))
                 {
@@ -453,12 +476,14 @@ public class TheVue extends BorderPane
                     double opacity = (nbCount * 0.1);
                     cells[i][j].setStyle("-fx-background-color: blue;-fx-font-size: 5;" +
                             "-fx-alignment: center;-fx-opacity: " + opacity + ";");
+                    nbGrains+=nbCount;
                 }
                 else
                     cells[i][j].setStyle("-fx-background-color: white;-fx-font-size: 5;" +
                             "-fx-alignment: center;");
             }
         }
+        Info.updateInfo(nbAnts,nbMurs,nbGrains);
     }
 
     public Label getCellsAt(int x,int y) {
@@ -527,13 +552,60 @@ public class TheVue extends BorderPane
         }
     }
 
-    public void resetFourmiliere() {
-        for (int i = 0; i < myFourmiliere.getLargeur(); i++) {
-            for (int j = 0; j < myFourmiliere.getLargeur(); j++) {
-                myFourmiliere.setValueContenu(i, j, "");
+    public void openNewWindow(int x,int y)
+    {
+        Stage zoomStage = new Stage();
+        zoomStage.setTitle("Zoom window");
+        int length = 11;
+
+        BorderPane root = new BorderPane();
+        FlowPane zoomf = new FlowPane();
+
+        zoomf.setMinSize(120,120);
+        zoomf.setHgap(0);
+        zoomf.setVgap(0);
+        zoomf.setPrefWrapLength(11*length);
+
+        int initX= x-5,
+                finalX = x+5,
+                initY = y-5,
+                finalY = y+5;
+
+        //je centre la fnêtre que je vais regarder...
+        root.setCenter(zoomf);
+        BorderPane.setAlignment(zoomf,Pos.CENTER);
+
+
+        Scene scene = new Scene(root);
+
+        for(int i=initX;i<finalX;i++)
+        {
+            for(int j=initY;j<finalY;j++)
+            {
+                if (!(i < 0 || i >= myFourmiliere.getLargeur() ||
+                        j < 0 || j >= myFourmiliere.getLargeur()))
+                {
+                    zoomf.getChildren().add(cells[i][j]);
+                }
             }
         }
-    }
 
+        zoomStage.setOnCloseRequest(e->
+        {
+            for(int i=initX;i<finalX;i++)
+            {
+                for(int j=initY;j<finalY;j++)
+                {
+                    if (!(i < 0 || i >= myFourmiliere.getLargeur() ||
+                            j < 0 || j >= myFourmiliere.getLargeur()))
+                    {
+                        GameVisual.getChildren().add(cells[i][j]);
+                    }
+                }
+            }
+        });
+        zoomStage.setScene(scene);
+        zoomStage.show();
+    }
 
 }
