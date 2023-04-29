@@ -1,4 +1,4 @@
-package theAnthill_project.theView;
+package jeuDesFourmis.theView;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
@@ -8,15 +8,29 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 
 public class SliderContainer extends HBox {
-    private Slider slide;
-    private Label l;
+    private final Slider slide;
 
     public SliderContainer(String s)
     {
         super();
         slide = new Slider(0,10,0.5);
         slide.setMaxWidth(100);
-        l = new Label(s);
+        Label l = new Label(s);
+
+        //Evènement au Scroll...
+        slide.setOnScroll(scrollEvent -> {
+            double deltaY = scrollEvent.getDeltaY();
+            double sliderValue = slide.getValue();
+
+            // Définir un facteur pour augmenter ou diminuer la sensibilité de la molette de la souris.
+            double inc = 0.1;
+
+            if (deltaY > 0) {
+                slide.setValue(sliderValue + inc);
+            } else if (deltaY < 0) {
+                slide.setValue(sliderValue - inc);
+            }
+        });
 
         l.setMaxWidth(150);
         l.setMinWidth(150);
@@ -30,11 +44,20 @@ public class SliderContainer extends HBox {
         l.textProperty().bind(Bindings.format("vitesse simulation : %.1f", slide.valueProperty()));
         l.setAlignment(Pos.CENTER_LEFT);
     }
+
+    /**
+     * Change la valeur du slider
+     * @param i la nouvelle valeur
+     */
     public void changeValue(double i)
     {
         slide.setValue(i);
     }
 
+    /**
+     * Retourne la valueProperty du slider
+     * @return la valueProperty du slider
+     */
     public DoubleProperty getSlideProperty()
     {
         return slide.valueProperty();

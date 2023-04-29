@@ -1,35 +1,45 @@
-package theAnthill_project.theController;
+package jeuDesFourmis.theController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import theAnthill_project.theModel.Fourmiliere;
-import theAnthill_project.theView.TheVue;
-import theAnthill_project.theView.UltimateBtns;
-
+import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
+import jeuDesFourmis.theModel.Fourmiliere;
+import jeuDesFourmis.theView.TheVue;
+import jeuDesFourmis.theView.UltimateBtns;
 import java.util.Objects;
 import java.util.Optional;
-
+import static java.lang.Thread.*;
 public class TheController
 {
-    private TheVue vue;
-    private Fourmiliere f;
+
+    // La vue
+    private final TheVue vue;
+
+    // La fourmilière
+    private final Fourmiliere f;
+
+    // Le service qui va exécuter la simulation
     private final Service<Void> taskservice;
     private final int INITIAL_SPEED = 1000; // 1000 millisecondes = 1 seconde
+
+    // Vitesse actuelle en millisecondes
     private int currentSpeed = INITIAL_SPEED;
 
-    private BooleanProperty ignoreChangeEvent = new SimpleBooleanProperty(false);
-
-
+    /**
+     * Affiche une boîte de dialogue de confirmation.
+     * @param title Le titre de la boîte de dialogue.
+     * @param header Le titre de la boîte de dialogue.
+     * @param content Le contenu de la boîte de dialogue.
+     * @return true si l'utilisateur a cliqué sur le bouton OK, false sinon.
+     */
+    private final BooleanProperty ignoreChangeEvent = new SimpleBooleanProperty(false);
     private int compteurLoop = 0;
     // Valeur initiale en millisecondes
-
 
     public TheController(TheVue myVue, Fourmiliere anthill)
     {
@@ -37,20 +47,17 @@ public class TheController
         f = anthill;
         OnclickLabel();
 
-        taskservice = new Service<Void>() {
+        taskservice = new Service<>() {
             @Override
             protected Task<Void> createTask() {
-                return new Task<Void>() {
+                return new Task<>() {
                     @Override
-                    protected Void call() throws Exception
-                    {
+                    protected Void call() throws Exception {
                         do {
                             f.evolue();
                             // Utilisez Platform.runLater pour appeler cette méthode sur le thread JavaFX
-                            Platform.runLater(() -> {
-                                vue.changeCellBackgroundOnContainer();
-                            });
-                            Thread.sleep(currentSpeed);
+                            Platform.runLater(vue::changeCellBackgroundOnContainer);
+                            sleep(currentSpeed);
                             if (isCancelled())
                                 break;
                         } while (!isCancelled());
@@ -64,11 +71,18 @@ public class TheController
         // avec le fait d'afficher les grilles ou pas...
         vue.getComponents().getUltimateBtns().getPause_Play().
                 setOnAction(e->{
+                    if (UltimateBtns.index_Pause_Play==0)
+                        UltimateBtns.index_Pause_Play=1;
+                    else
+                        UltimateBtns.index_Pause_Play=0;
+
                     vue.getComponents().getUltimateBtns().changeImagePlay();
                     vue.changeGrilleVisibility();
 
-                    if (UltimateBtns.index_Pause_Play==0)
+                    if (UltimateBtns.index_Pause_Play==1)
+                    {
                         execute();
+                    }
                     else
                         taskservice
                                 .cancel();
@@ -108,16 +122,9 @@ public class TheController
                 // Code pour réinitialiser le plateau
                 try {
                     int newLargeur = Integer.parseInt(newValue);
-                    if (newLargeur>50)
-                    {
-                        taskservice.reset();//ce que je viens d'ajouter
-                        changeLargeur(50);
-                    }
-                    else
-                    {
-                        taskservice.reset();//ce que je viens d'ajouter
-                        changeLargeur(newLargeur);
-                    }
+                    taskservice.reset();//ce que je viens d'ajouter
+//ce que je viens d'ajouter
+                    changeLargeur(Math.min(newLargeur, 50));
 
                 } catch (NumberFormatException e) {
                     // Gérer l'exception si la valeur n'est pas un nombre entier
@@ -162,31 +169,29 @@ public class TheController
 
         //la vitesse d'execution du service
 
-        vue.getComponents().getSlider().getSlideProperty().addListener(new ChangeListener<Number>()
-        {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1)
+        vue.getComponents().getSlider().getSlideProperty().addListener((observableValue, number, t1) -> {
+            if (ignoreChangeEvent.get())
+                return;
+
+            if (showConfirmationDialog("Réinitialiser la vitesse du jeu",
+                    "Êtes-vous sûr de vouloir réinitialiser la vitesse du jeu ?",
+                    "Le jeu changera de vitesse, en fonction de votre paramètre..."))
             {
-                if (ignoreChangeEvent.get())
-                    return;
-
-                if (showConfirmationDialog("Réinitialiser la vitesse du jeu",
-                        "Êtes-vous sûr de vouloir réinitialiser la vitesse du jeu ?",
-                        "Le jeu changera de vitesse, en fonction de votre paramètre..."))
-                {
-                    // Code pour réinitialiser la vitesse d'exécution du service
-                    double value = t1.doubleValue();
-                    currentSpeed = (int)(INITIAL_SPEED/value);
-                }
-                else
-                {
-                    ignoreChangeEvent.set(true);
-                    vue.getComponents().getSimulation().changeValue(number.doubleValue());
-                    ignoreChangeEvent.set(false);
-                }
-
+                // Code pour réinitialiser la vitesse d'exécution du service
+                double value = t1.doubleValue();
+                currentSpeed = (int)(INITIAL_SPEED/value);
             }
+            else
+            {
+                ignoreChangeEvent.set(true);
+                vue.getComponents().getSlider().changeValue(number.doubleValue());
+                ignoreChangeEvent.set(false);
+            }
+
         });
+
+
+
 
         //modification du nombre de fourmis
 
@@ -284,12 +289,16 @@ public class TheController
         //Le bouton Loop...
 
         vue.getComponents().getUltimateBtns().getLoop().setOnAction(e->
-        {
-            compteurLoop++;
-        });
+                compteurLoop++);
     }
 
-    //Boîte de dialogue
+
+    /**
+     * Méthode qui permet d'afficher une boîte de dialogue
+     * @param title
+     * @param headerText
+     * @param contentText
+     */
     private boolean showConfirmationDialog(String title, String headerText, String contentText) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
@@ -300,27 +309,33 @@ public class TheController
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
+    /**
+     * Méthode qui permet de changer la largeur de la fourmilière et donc du terrain
+     */
     public void changeLargeur(int newLargeur)
     {
         //Update de la fourmiliere
         f.updateFourmiliere(newLargeur);
-        System.out.printf("updateFourmilière réussi de l%n");
         //Update de la vue
         vue.updateGameVisual(newLargeur);
-        System.out.printf("updateGameVisual de la vue réussi de l%n");
         OnclickLabel();
-        System.out.printf(" OnclickLabel du controller réussi de l%n");
     }
 
+    /**
+     * Méthode qui permet de changer la capacité de chaque cellule
+     */
     public void changeCapacityG(int cap)
     {
         //Update de la fourmiliere
         //f.setQMax(cap);ça marche mais ne réinitialise pas le terrain...
         f.updateCapFourmiliere(f.getLargeur(),cap); //reinitialise le terrain...
         vue.updateGameVisual(f.getLargeur());
-        OnclickLabel();
+
     }
 
+    /**
+     * Méthode qui permet de changer le nombre de fourmis du terrain
+     */
     public void changeNbFourmis(int value)
     {
         f.updateFourmiliere(f.getLargeur());
@@ -328,6 +343,9 @@ public class TheController
         OnclickLabel();
     }
 
+    /**
+     * Méthode qui permet de changer le nombre de murs du terrain
+     */
     public void changeNbMurs(int murs)
     {
         f.updateFourmiliere(f.getLargeur());
@@ -335,6 +353,9 @@ public class TheController
         OnclickLabel();
     }
 
+    /**
+     * Méthode qui permet de changer le nombre de grains du terrain
+     */
     public void changeNbGrains(int grains)
     {
         f.updateFourmiliere(f.getLargeur());
@@ -342,6 +363,9 @@ public class TheController
         OnclickLabel();
     }
 
+    /**
+     * Méthode qui permet de rajouter des murs ou des fourmis sur le terrain au click
+     */
     public void OnclickLabel()
     {
         for(int i=0;i<f.getLargeur();i++)
@@ -352,15 +376,11 @@ public class TheController
                 int finalJ = j;
                 vue.getCellsAt(i,j).setOnMouseClicked(e->
                 {
-                    if (e.isAltDown())
-                    {
-                        if (compteurLoop % 2 !=0)
-                        {
-                            vue.openNewWindow(finalI,finalJ);
-                            vue.changeCellBackgroundOnContainer();
-                        }
-                    }
 
+                    if (compteurLoop %2 !=0)
+                    {
+                        vue.openNewWindow(finalI,finalJ);
+                    }
 
                     if (e.isShiftDown())
                     {
@@ -373,27 +393,42 @@ public class TheController
                     }
                     else
                     {
-                        if (Objects.equals(f.getCellContenu(finalI, finalJ), ""))
-                        {
-                            f.setValueContenu(finalI,finalJ,"O");
-                            //System.out.println("la position "+ finalJ+" "+finalI);
-                            vue.changeCellBackgroundOnContainer();
-                        }
-                        else if (Objects.equals(f.getCellContenu(finalI, finalJ), "O"))
-                        {
-                            f.setValueContenu(finalI,finalJ,"");
-                            //System.out.println("la position "+ finalJ+" "+finalI);
-                            vue.changeCellBackgroundOnContainer();
-                        }
+                        AddWallContainer(finalI, finalJ);
                     }
                 });
+
+
             }
         }
     }
 
+
+    /**
+     * Méthode qui permet de rajouter des murs sur le terrain au click
+     * @param i la position en x
+     * @param j la position en y
+     */
+    public void AddWallContainer(int i, int j) {
+        if (Objects.equals(f.getCellContenu(i, j), ""))
+        {
+            f.setValueContenu(i,j,"O");
+            //System.out.println("la position "+ finalJ+" "+finalI);
+            vue.changeCellBackgroundOnContainer();
+        }
+        else if (Objects.equals(f.getCellContenu(i, j), "O"))
+        {
+            f.setValueContenu(i,j,"");
+            //System.out.println("la position "+ finalJ+" "+finalI);
+            vue.changeCellBackgroundOnContainer();
+        }
+    }
+
+    /**
+     * Méthode qui permet de lancer la simulation
+     */
+
     public void execute()
     {
-        System.out.println("execution enclenchée - no modif \n");
         vue.getComponents().setDisableAllComponents(true);
         vue.getComponents().getUltimateBtns().setDisableUltimateBtns(true);
 
@@ -401,26 +436,23 @@ public class TheController
             taskservice.cancel();
         }
 
-        taskservice.stateProperty().addListener(new ChangeListener<Worker.State>() {
-            @Override
-            public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State state, Worker.State t1) {
-                switch (t1)
+        taskservice.stateProperty().addListener((observableValue, state, t1) -> {
+            switch (t1)
+            {
+                case FAILED, CANCELLED->
                 {
-                    case FAILED, CANCELLED->
-                    {
-                        System.out.println("the service is cancelled");
-                        vue.getComponents().setDisableAllComponents(false);
-                        vue.getComponents().getUltimateBtns().setDisableUltimateBtns(false);
-                        taskservice.reset();
-                    }
-                    case SUCCEEDED ->
-                    {
-                        System.out.println("the service succeeded");
-                        vue.getComponents().setDisableAllComponents(false);
-                        vue.getComponents().getUltimateBtns().setDisableUltimateBtns(false);
-                        changeLargeur(f.getLargeur());
-                        taskservice.reset();
-                    }
+                    //System.out.println("the service is cancelled");
+                    vue.getComponents().setDisableAllComponents(false);
+                    vue.getComponents().getUltimateBtns().setDisableUltimateBtns(false);
+                    taskservice.reset();
+                }
+                case SUCCEEDED ->
+                {
+                    //System.out.println("the service succeeded");
+                    vue.getComponents().setDisableAllComponents(false);
+                    vue.getComponents().getUltimateBtns().setDisableUltimateBtns(false);
+                    changeLargeur(f.getLargeur());
+                    taskservice.reset();
                 }
             }
         });

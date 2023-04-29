@@ -1,18 +1,17 @@
-package theAnthill_project;
-
+package jeuDesFourmis.Game;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import theAnthill_project.theController.TheController;
-import theAnthill_project.theModel.Fourmiliere;
-import theAnthill_project.theView.TheVue;
+import jeuDesFourmis.theController.TheController;
+import jeuDesFourmis.theModel.Fourmiliere;
+import jeuDesFourmis.theView.TheVue;
 
 public class MainApp extends Application
 {
     @Override
     public void start(Stage stage)
     {
-        stage.setTitle("The anthill's game");
+        stage.setTitle("Le Jeu des Fourmis");
 
         Fourmiliere Model = new Fourmiliere(50,10);
 

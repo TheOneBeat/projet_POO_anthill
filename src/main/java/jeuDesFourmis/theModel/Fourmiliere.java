@@ -1,4 +1,4 @@
-package theAnthill_project.theModel;
+package jeuDesFourmis.theModel;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,12 +13,14 @@ public class Fourmiliere {
     // dans le tableau fourmis
     private List<Fourmi> lesFourmis;
 
-    // Tableaux contenant les murs, les fourmis et les graines.
+
     // Attention : pour un terrain [1..hauteur]x[1..largeur], ces tableaux
     // sont indicés de [0..hauteur+1][0..largeur+1], cela permet de simplifier
     // certains traitements en ne traitant pas le cas particulier des bordures.
-    private int qteGraines[][];
-    private String cellValues[][];
+    private int[][] qteGraines;
+
+    // Tableaux contenant les murs, les fourmis et les graines.
+    private String[][] cellValues;
 
     /**
      * Crée une fourmiliere de largeur l et de hauteur h.
@@ -32,14 +34,17 @@ public class Fourmiliere {
         inits(largeur,qm);
     }
 
+    /**
+     * Cette fonction permet d'initialiser la fourmilière en initialisant tous les attributs du model
+     *
+     * @param k le premier entier
+     * @param qm le deuxième entier
+     * @return la somme de a et b
+     */
     public void inits(int k,int qm)
     {
         qMax=qm;
-        this.lesFourmis = new LinkedList<Fourmi>();
-
-      /*à modifier en ajouter une limite
-
-      de fourmi... qu'on pourrait rajouter */
+        this.lesFourmis = new LinkedList<>();
 
         qteGraines = new int[k + 2][k + 2];
         for (int i = 0; i < k + 2; i++) {
@@ -57,20 +62,45 @@ public class Fourmiliere {
         }
     }
 
+
+
+    /**
+     * change la largeur de la fourmiliere
+     *
+     * @param l largeur de la fourmiliere
+     */
     public void setLargeur(int l) {
         largeur = l;
     }
+    /**
+     * Retourne la largeur de la fourmiliere
+     *
+     * @return la largeur
+     */
 
     public int getLargeur() {
         return largeur;
     }
 
+    /**
+     * Cette fonction permet d'initialiser la fourmilière en fonction de la nouvelle largeur
+     *
+     * @param l la nouvelle largeur
+     *
+     */
     public void updateFourmiliere(int l)
     {
         setLargeur(l);
         inits(largeur,qMax);
     }
 
+
+    /**
+     * Cette fonction permet d'initialiser la fourmilière en fonction de la nouvelle largeur et de la nouvelle capacité
+     *
+     * @param l la nouvelle largeur
+     * @param cap la nouvelle capacité
+     */
     public void updateCapFourmiliere(int l,int cap)
     {
         setQMax(cap);
@@ -108,7 +138,13 @@ public class Fourmiliere {
         return cellValues[y][x];
     }
 
-    //Ce que j'ai rajouté...
+
+    /**
+     * cette fonction permet de mettre à jour le contenu de la cellule (x,y) avec la chaine de caractère s
+     * @param x coordonnée
+     * @param y abcisse
+     * @param s le contenu de la cellule
+     */
     public void setValueContenu(int x, int y, String s)
     {
         if (cellValues[y][x].equals("O") && s.equals(""))
@@ -116,9 +152,9 @@ public class Fourmiliere {
 
         if (cellValues[y][x].equals("")||cellValues[y][x].contains("."))
         {
-            if (s.contains(".") && qteGraines[y][x]+1<=qMax)
+            if (s.contains(".") && ((qteGraines[y][x]+1<=qMax)|| (qteGraines[y][x]==0)))
             {
-                qteGraines[y][x]+=1;
+                qteGraines[y][x]+=s.length();
                 //System.out.println("la capacite max est fixé à "+qMax);
                 cellValues[y][x] = s;
             }
@@ -135,31 +171,7 @@ public class Fourmiliere {
         }
     }
 
-    /**
-     * Retourne la quantité de graine au point (x,y) du terrain
-     *
-     * @param x coordonnnee
-     * @param y abcisse
-     * @return la quantité de graine
-     */
-    public int getQteGraines(int x, int y) {
-        return this.qteGraines[y][x];
-    }
 
-    /**
-     * Positionne des graines au point (x,y) du terrain
-     *
-     * @param x   coordonnee
-     * @param y   abcisse
-     * @param qte le nombre de graines que l'on souhaite poser. Si qte !E [0..QMAX] rien n'est effectué
-     */
-    public void setQteGraines(int x, int y, int qte) {
-        //assert (qte >=0 && qte <=QMAX);
-        if (qte < 0 || qte > qMax) {
-            return;
-        }
-        this.qteGraines[y][x] = qte;
-    }
 
     /**
      * Compte les graines du point (x,y) et des cellules voisines
@@ -185,10 +197,6 @@ public class Fourmiliere {
         return nb;
     }
 
-    public List<Fourmi> getLesFourmis() {
-        return lesFourmis;
-    }
-
     /**
      * Evolution d'une étape de la fourmilière
      * Pour chaque fourmi f de la foumilière.
@@ -203,20 +211,36 @@ public class Fourmiliere {
      */
     public void evolue()
     {
-        for(int i=0;i<lesFourmis.size();i++)
-        {
-            Fourmi f = lesFourmis.get(i);
+        for (Fourmi f : lesFourmis) {
             int posX = f.getX();
             int posY = f.getY();
 
             // la fourmi f prend ?
-            if (!f.porte() && qteGraines[posY][posX] > 0)
-            {
-                if (Math.random() < Fourmi.probaPrend(compteGrainesVoisines(posX, posY)))
-                {
+            if (!f.porte() && qteGraines[posY][posX] > 0) {
+                if (Math.random() < Fourmi.probaPrend(compteGrainesVoisines(posX, posY))) {
                     f.prend();
                     qteGraines[posY][posX]--;
-                    System.out.printf("la fourmi a pris le grain %n");
+                    if (qteGraines[posY][posX] > 0) {
+                        boolean finale = false;
+                        int x = 0, y = 0;
+                        while (!finale) {
+                            for (int vx = -2; vx < 4; vx++) {
+                                for (int vy = -2; vy < 4; vy++) {
+                                    if ((posX + vx >= 0) && (posX + vx < largeur)
+                                            && (posY + vy >= 0)
+                                            && (posY + vy < largeur)) {
+                                        if (cellValues[posY + vy][posX + vx].equals("")) {
+                                            x = posX + vx;
+                                            y = posY + vy;
+                                            finale = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        setValueContenu(x, y, ".".repeat(qteGraines[posY][posX]));
+                    }
+                    //System.out.printf("la fourmi a pris le grain %n");
                 }
             }
             // la fourmi f se déplace.
@@ -229,36 +253,27 @@ public class Fourmiliere {
                 deltaX = posX;
                 deltaY = posY;
                 int tirage = (int) (Math.random() * 7.99999999);
-                switch (tirage)
-                {
-                    case 0:
+                switch (tirage) {
+                    case 0 -> {
                         deltaX--;
                         deltaY--;
-                        break;
-                    case 1:
-                        deltaY--;
-                        break;
-                    case 2:
+                    }
+                    case 1 -> deltaY--;
+                    case 2 -> {
                         deltaX++;
                         deltaY--;
-                        break;
-                    case 3:
-                        deltaX--;
-                        break;
-                    case 4:
-                        deltaX++;
-                        break;
-                    case 5:
+                    }
+                    case 3 -> deltaX--;
+                    case 4 -> deltaX++;
+                    case 5 -> {
                         deltaX--;
                         deltaY++;
-                        break;
-                    case 6:
-                        deltaY++;
-                        break;
-                    case 7:
+                    }
+                    case 6 -> deltaY++;
+                    case 7 -> {
                         deltaX++;
                         deltaY++;
-                        break;
+                    }
                 }
                 // On tire au sort jusqu'a ce qu'on soit tombe sur une case vide
                 // ou bien qu'on ait essayé 99 fois.
@@ -267,15 +282,13 @@ public class Fourmiliere {
                     || cellValues[deltaY][deltaX].equals("X")) && cptEssai < 100));
 
             boolean thefinalSpot = false;
-            cellValues[posY][posX]="";
-            int xx = -1,yy = -1;
+            cellValues[posY][posX] = "";
+            int xx = -1, yy = -1;
             //System.out.printf("la fourmi à la position x %d et y %d s'est deplacé au %d %d %n",posX,posY,deltaX,deltaY);
             // la fourmi pose ?
-            if (f.porte() && qteGraines[deltaY][deltaX] < qMax)
-            {
+            if (f.porte() && qteGraines[deltaY][deltaX] < qMax) {
 
-                if (Math.random() < Fourmi.probaPose(compteGrainesVoisines(deltaX, deltaY)))
-                {
+                if (Math.random() < Fourmi.probaPose(compteGrainesVoisines(deltaX, deltaY))) {
                     //System.out.printf("Je vais poser %n");
                     f.pose();
                     //poser un grain ici avec la fonction setCellContenu ici...
@@ -284,20 +297,15 @@ public class Fourmiliere {
                     boolean theEnd = true;
 
                     //première instruction
-                    while(theEnd)
-                    {
-                        for (int vx = -2; vx < 4; vx++)
-                        {
-                            for (int vy = -2; vy < 4; vy++)
-                            {
+                    while (theEnd) {
+                        for (int vx = -2; vx < 4; vx++) {
+                            for (int vy = -2; vy < 4; vy++) {
                                 if ((deltaX + vx >= 0) && (deltaX + vx < largeur) && (deltaY + vy >= 0)
-                                        && (deltaY + vy < largeur))
-                                {
-                                    if (cellValues[deltaY + vy][deltaX + vx].equals(""))
-                                    {
+                                        && (deltaY + vy < largeur)) {
+                                    if (cellValues[deltaY + vy][deltaX + vx].equals("")) {
                                         cellValues[deltaY][deltaX] = "";
-                                        xx=deltaX+vx;
-                                        yy=deltaY+vy;
+                                        xx = deltaX + vx;
+                                        yy = deltaY + vy;
                                         theEnd = false;
                                     }
                                 }
@@ -311,20 +319,17 @@ public class Fourmiliere {
                     cellValues[deltaY][deltaX] = "";
                     f.setX(xx);
                     f.setY(yy);
-                    //cellValues[yy][xx] = "X";
-                    setValueContenu(deltaX,deltaY,".");
-                    //System.out.printf("la fourmi a posé un grain au pos %d %d %n",deltaX,deltaY);
+                    setValueContenu(deltaX, deltaY, ".");
+                    //System.out.printf("la fourmi a posé un grain au pos %d %d %n", deltaX, deltaY);
                     qteGraines[deltaY][deltaX]++;
                 }
             }
-            ;
             if (thefinalSpot)
-                cellValues[yy][xx]="";
-            else
-            {
+                cellValues[yy][xx] = "";
+            else {
                 f.setX(deltaX);
                 f.setY(deltaY);
-                cellValues[deltaY][deltaX]="X";
+                cellValues[deltaY][deltaX] = "X";
             }
         }
     }

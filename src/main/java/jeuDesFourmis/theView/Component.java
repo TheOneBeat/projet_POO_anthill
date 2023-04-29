@@ -1,4 +1,4 @@
-package theAnthill_project.theView;
+package jeuDesFourmis.theView;
 
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
@@ -6,15 +6,18 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 
+/**
+ * Le component est composé d'un label et d'un textfield
+ */
 public class Component extends HBox
 {
-    private Label name;
-    private TextField container;
+
+    private final TextField container;
 
     public Component(String nom,String value)
     {
         super();
-        name = new Label(nom);
+        Label name = new Label(nom);
 
         name.setMaxWidth(150);
         name.setMinWidth(150);
@@ -36,6 +39,10 @@ public class Component extends HBox
         this.getChildren().addAll(name,container);
     }
 
+    /**
+     * return 0 si le textfield est vide
+     * @return la valeur du textfield
+     */
     public int getContainerValue()
     {
         int result;
@@ -46,10 +53,19 @@ public class Component extends HBox
         return result;
     }
 
+    /**
+     * ajoute un listener au textfield
+     * @param listener
+     */
     public void addChangeListener(ChangeListener<? super String> listener) {
         container.textProperty().addListener(listener);
     }
 
+
+    /**
+     * change la valeur du textfield
+     * @param i la nouvelle valeur de type int
+     */
     public void updateValue(int i)
     {
         container.setText(String.valueOf(i));

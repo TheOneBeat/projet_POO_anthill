@@ -1,6 +1,5 @@
-package theAnthill_project.theView;
+package jeuDesFourmis.theView;
 
-import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,28 +8,36 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import theAnthill_project.theModel.Fourmiliere;
+import jeuDesFourmis.theModel.Fourmiliere;
 import java.util.Objects;
 import java.util.Random;
 
 public class TheVue extends BorderPane
 {
+
+
+    /**
+     * @param l : la taille de la grille
+     * @param cells : la grille
+     * @param myFourmiliere : la fourmiliere
+     * @param components : les composants de la vue
+     * @param Quit : le bouton quitter
+     * @param Info : les labels d'informations
+     * @param nbIter : le nombre d'itérations
+     */
     private FlowPane GameVisual;
     private int l;
     private Label[][] cells;
-    private int doubleRatio;
     private Fourmiliere myFourmiliere;
     private AllComponentsBtns components;
     private Button Quit;
     private LabelsInfo Info;
+
+    private int nbIter;
     public TheVue(Fourmiliere anthill)
     {
         super();
         initVue(anthill);
-    }
-    public DoubleProperty getGameVisualHeightProp()
-    {
-        return GameVisual.minHeightProperty();
     }
 
     public Button getQuit() {
@@ -41,11 +48,16 @@ public class TheVue extends BorderPane
         return components;
     }
 
+    /**
+     * permet d'afficher la grille
+     *
+     */
+
     public void setGrilleVisible()
     {
-        for (int i=0;i<doubleRatio;i++)
+        for (int i=0;i<l;i++)
         {
-            for(int j=0;j<doubleRatio;j++)
+            for(int j=0;j<l;j++)
             {
                 cells[i][j].setBorder(
                         new Border(
@@ -62,16 +74,25 @@ public class TheVue extends BorderPane
         this.addBorderToGameVisual();
     }
 
+    /**
+     * permet de cacher la grille
+     *
+     */
+
     public void setGrilleNotVisible()
     {
-        for (int i=0;i<doubleRatio;i++)
+        for (int i=0;i<l;i++)
         {
-            for(int j=0;j<doubleRatio;j++) {
+            for(int j=0;j<l;j++) {
                 cells[i][j].setBorder(Border.EMPTY);
             }
         }
-        this.removeBorderToGameVisual();
     }
+
+    /**
+     * permet de mettre la bordure au flowPane GameVisual
+     *
+     */
     public void addBorderToGameVisual()
     {
         GameVisual.setBorder(
@@ -86,28 +107,33 @@ public class TheVue extends BorderPane
         );
     }
 
+    /**
+     * permet de retirer la bordure au flowPane GameVisual
+     *
+     */
+
     public void removeBorderToGameVisual()
     {
         GameVisual.setBorder(Border.EMPTY);
     }
 
-    public Fourmiliere getMyFourmiliere() {
-        return myFourmiliere;
-    }
 
+    /**
+     * permet d'initialiser la vue avec la fourmiliere
+     *
+     */
     public void initVue(Fourmiliere anthill)
     {
         myFourmiliere = anthill;
         GameVisual = new FlowPane();
         //initialisation de la taille du gameTaille...
 
-        l = (int) myFourmiliere.getLargeur();
-        doubleRatio = l;
+        l = myFourmiliere.getLargeur();
 
         GameVisual.setMinSize(200,200);
         GameVisual.setHgap(0);
         GameVisual.setVgap(0);
-        GameVisual.setPrefWrapLength(doubleRatio*10);
+        GameVisual.setPrefWrapLength(l*10);
 
         components = new AllComponentsBtns();
 
@@ -117,11 +143,22 @@ public class TheVue extends BorderPane
         // Initialisation de la table cells...
         // && Ajout de chaque cell au flowPane GameVisual...
 
-        cells = new Label[doubleRatio][doubleRatio];
+        cells = new Label[l][l];
 
-        for (int i=0;i<doubleRatio;i++)
+        rechargeTabCells();
+        addBorderToGameVisual();
+        finalCodeAdd();
+    }
+
+    /**
+     * permet d'ajouter les cells au flowPane GameVisual
+     *
+     */
+
+    public void rechargeTabCells() {
+        for (int i=0;i<l;i++)
         {
-            for(int j=0;j<doubleRatio;j++)
+            for(int j=0;j<l;j++)
             {
                 cells[i][j]=new Label("");
                 cells[i][j].setMaxWidth(10);
@@ -135,247 +172,119 @@ public class TheVue extends BorderPane
 
         GameVisual.setStyle("-fx-background-color: white");
         GameVisual.setAlignment(Pos.CENTER);
-        setTop(Info);
-        setAlignment(Info,Pos.TOP_CENTER);
-        setLeft(GameVisual);
-        setAlignment(GameVisual, Pos.CENTER_LEFT);
-        setRight(components);
-        setAlignment(components,Pos.CENTER_RIGHT);
-
-        setBottom(Quit);
-        setAlignment(Quit,Pos.BOTTOM_RIGHT);
-
-        this.setPadding(new Insets(10));
-        //Initialiser le terrain avec les paramètres de l'utilisateur...
-        this.updateContainerFourmiliere();
-        //mise à jour du terrain...
-        this.changeCellBackgroundOnContainer();
     }
 
 
+    /**
+     * permet de mettre à jour la vue avec la nouvelle largeur
+     *
+     */
+
     public void updateGameVisual(int newLargeur)
     {
-        System.out.printf("entrée dans la fonction updateGameVisual %n");
+        removeBorderToGameVisual();
+
+        //System.out.printf("entrée dans la fonction updateGameVisual %n");
         GameVisual.getChildren().clear();
+
         this.getChildren().clear();
 
-        l = (int) myFourmiliere.getLargeur();
-        System.out.printf("stockage de la nouvelle largeur du model %n");
-        doubleRatio = l;
+        l = myFourmiliere.getLargeur();
+        //System.out.printf("stockage de la nouvelle largeur du model %n");
 
         GameVisual.setMinSize(200,200);
         GameVisual.setHgap(0);
         GameVisual.setVgap(0);
-        GameVisual.setPrefWrapLength(doubleRatio*10);
-
-        System.out.printf("Modification du terrain %n");
+        GameVisual.setPrefWrapLength(l*10);
 
         components.updateAllComponents(newLargeur,
                 components.getCapacityCase().getContainerValue(),
                 components.getSimulationVitesse(),components.getNbGrains().getContainerValue(),
                 components.getNbFourmis().getContainerValue(),components.getNbMurs().getContainerValue());
 
-        System.out.printf("Mise à jour des composants du terrain %n");
         // Initialisation de la table cells...
         // && Ajout de chaque cell au flowPane GameVisual...
 
-        cells = new Label[doubleRatio][doubleRatio];
-        Info = new LabelsInfo();
-        setTop(Info);
-        setAlignment(Info,Pos.TOP_CENTER);
+        cells = new Label[l][l];
+        rechargeTabCells();
+        addBorderToGameVisual();
 
-        for (int i=0;i<doubleRatio;i++)
-        {
-            for(int j=0;j<doubleRatio;j++)
-            {
-                cells[i][j]=new Label("");
-                cells[i][j].setMaxWidth(10);
-                cells[i][j].setMinWidth(10);
-                cells[i][j].setMinHeight(10);
-                cells[i][j].setMaxHeight(10);
-                cells[i][j].setStyle("-fx-background-color: white;-fx-font-size: 5;-fx-alignment: center;");
-                GameVisual.getChildren().add(cells[i][j]);
-            }
-        }
-
-        GameVisual.setStyle("-fx-background-color: white");
-        GameVisual.setAlignment(Pos.CENTER);
-        setLeft(GameVisual);
-        setAlignment(GameVisual, Pos.CENTER_LEFT);
-        setRight(components);
-        setAlignment(components,Pos.CENTER_RIGHT);
-
-        setBottom(Quit);
-        setAlignment(Quit,Pos.BOTTOM_RIGHT);
-
-        this.setPadding(new Insets(10));
-        System.out.printf("finition de updateGameVisual de la vue %n");
-
-        //Initialiser le terrain avec les paramètres de l'utilisateur...
-        this.updateContainerFourmiliere();
-
-        System.out.printf("appel de la fonction pour remplir le terrain à initialisation du game %n");
-        //
-        //mise à jour du terrain...
-        this.changeCellBackgroundOnContainer();
-        System.out.printf("mise à jour de la vue du game %n");
+        finalCodeAdd();
     }
 
+    /**
+     * permet de mettre à jour la vue avec un nouveau nombre de fourmis
+     *
+     */
 
     public void updateGameVisualNbFourmi(int nbAnts)
     {
-        System.out.printf("entrée dans la fonction updateGameVisual %n");
-        GameVisual.getChildren().clear();
-        this.getChildren().clear();
-
-        l = (int) myFourmiliere.getLargeur();
-        System.out.printf("stockage de la nouvelle largeur du model %n");
-        doubleRatio = l;
-
-        GameVisual.setMinSize(200,200);
-        GameVisual.setHgap(0);
-        GameVisual.setVgap(0);
-        GameVisual.setPrefWrapLength(doubleRatio*10);
-
-        System.out.printf("Modification du terrain %n");
-
+        initialValues();
         components.updateAllComponents(components.getTaillePlateauJeu().getContainerValue(),
                 components.getCapacityCase().getContainerValue(),
                 components.getSimulationVitesse(),components.getNbGrains().getContainerValue(),
                 nbAnts,components.getNbMurs().getContainerValue());
 
-        System.out.printf("Mise à jour des composants du terrain %n");
         // Initialisation de la table cells...
         // && Ajout de chaque cell au flowPane GameVisual...
 
-        cells = new Label[doubleRatio][doubleRatio];
-        Info = new LabelsInfo();
-        setTop(Info);
-        setAlignment(Info,Pos.TOP_CENTER);
+        
 
-        for (int i=0;i<doubleRatio;i++)
-        {
-            for(int j=0;j<doubleRatio;j++)
-            {
-                cells[i][j]=new Label("");
-                cells[i][j].setMaxWidth(10);
-                cells[i][j].setMinWidth(10);
-                cells[i][j].setMinHeight(10);
-                cells[i][j].setMaxHeight(10);
-                cells[i][j].setStyle("-fx-background-color: white;-fx-font-size: 5;-fx-alignment: center;");
-                GameVisual.getChildren().add(cells[i][j]);
-            }
-        }
+        cells = new Label[l][l];
+        rechargeTabCells();
 
-        GameVisual.setStyle("-fx-background-color: white");
-        GameVisual.setAlignment(Pos.CENTER);
-        setLeft(GameVisual);
-        setAlignment(GameVisual, Pos.CENTER_LEFT);
-        setRight(components);
-        setAlignment(components,Pos.CENTER_RIGHT);
-
-        setBottom(Quit);
-        setAlignment(Quit,Pos.BOTTOM_RIGHT);
-
-        this.setPadding(new Insets(10));
-        System.out.printf("finition de updateGameVisual de la vue %n");
-
-        //Initialiser le terrain avec les paramètres de l'utilisateur...
-        this.updateContainerFourmiliere();
-
-        System.out.printf("appel de la fonction pour remplir le terrain à initialisation du game %n");
-        //
-        //mise à jour du terrain...
-        this.changeCellBackgroundOnContainer();
-        System.out.printf("mise à jour de la vue du game %n");
+        finalCodeAdd();
     }
 
-
-
-    public void updateGameVisualNbMurs(int nbMurs)
-    {
-        System.out.printf("entrée dans la fonction updateGameVisual %n");
+    /**
+     * permet d'initialiser les attributs de la vue largeur, GameVisual...
+     *
+     */
+    public void initialValues() {
+        removeBorderToGameVisual();
         GameVisual.getChildren().clear();
         this.getChildren().clear();
 
-        l = (int) myFourmiliere.getLargeur();
-        System.out.printf("stockage de la nouvelle largeur du model %n");
-        doubleRatio = l;
+        l = myFourmiliere.getLargeur();
 
         GameVisual.setMinSize(200,200);
         GameVisual.setHgap(0);
         GameVisual.setVgap(0);
-        GameVisual.setPrefWrapLength(doubleRatio*10);
+        GameVisual.setPrefWrapLength(l*10);
+    }
 
-        System.out.printf("Modification du terrain %n");
+
+    /**
+     * permet de mettre à jour la vue avec un nouveau nombre de murs
+     *
+     */
+    public void updateGameVisualNbMurs(int nbMurs)
+    {
+        initialValues();
 
         components.updateAllComponents(components.getTaillePlateauJeu().getContainerValue(),
                 components.getCapacityCase().getContainerValue(),
                 components.getSimulationVitesse(),components.getNbGrains().getContainerValue(),
                 components.getNbFourmis().getContainerValue(),nbMurs);
 
-        System.out.printf("Mise à jour des composants du terrain %n");
         // Initialisation de la table cells...
         // && Ajout de chaque cell au flowPane GameVisual...
 
-        cells = new Label[doubleRatio][doubleRatio];
-        Info = new LabelsInfo();
-        setTop(Info);
-        setAlignment(Info,Pos.TOP_CENTER);
+        cells = new Label[l][l];
+        rechargeTabCells();
+        addBorderToGameVisual();
 
-        for (int i=0;i<doubleRatio;i++)
-        {
-            for(int j=0;j<doubleRatio;j++)
-            {
-                cells[i][j]=new Label("");
-                cells[i][j].setMaxWidth(10);
-                cells[i][j].setMinWidth(10);
-                cells[i][j].setMinHeight(10);
-                cells[i][j].setMaxHeight(10);
-                cells[i][j].setStyle("-fx-background-color: white;-fx-font-size: 5;-fx-alignment: center;");
-                GameVisual.getChildren().add(cells[i][j]);
-            }
-        }
-
-        GameVisual.setStyle("-fx-background-color: white");
-        GameVisual.setAlignment(Pos.CENTER);
-        setLeft(GameVisual);
-        setAlignment(GameVisual, Pos.CENTER_LEFT);
-        setRight(components);
-        setAlignment(components,Pos.CENTER_RIGHT);
-
-        setBottom(Quit);
-        setAlignment(Quit,Pos.BOTTOM_RIGHT);
-
-        this.setPadding(new Insets(10));
-        System.out.printf("finition de updateGameVisual de la vue %n");
-
-        //Initialiser le terrain avec les paramètres de l'utilisateur...
-        this.updateContainerFourmiliere();
-
-        System.out.printf("appel de la fonction pour remplir le terrain à initialisation du game %n");
-        //
-        //mise à jour du terrain...
-        this.changeCellBackgroundOnContainer();
-        System.out.printf("mise à jour de la vue du game %n");
+        finalCodeAdd();
     }
+
+    /**
+     * permet de mettre à jour la vue avec un nouveau nombre de grains
+     *
+     */
 
     public void updateGameVisualNbGrains(int nbGrains)
     {
-        System.out.printf("entrée dans la fonction updateGameVisual %n");
-        GameVisual.getChildren().clear();
-        this.getChildren().clear();
-
-        l = (int) myFourmiliere.getLargeur();
-        System.out.printf("stockage de la nouvelle largeur du model %n");
-        doubleRatio = l;
-
-        GameVisual.setMinSize(200,200);
-        GameVisual.setHgap(0);
-        GameVisual.setVgap(0);
-        GameVisual.setPrefWrapLength(doubleRatio*10);
-
-        System.out.printf("Modification du terrain %n");
+        initialValues();
 
         components.updateAllComponents(components.getTaillePlateauJeu().getContainerValue(),
                 components.getCapacityCase().getContainerValue(),
@@ -383,78 +292,64 @@ public class TheVue extends BorderPane
                 components.getNbFourmis().getContainerValue(),
                 components.getNumberMurs());
 
-        System.out.printf("Mise à jour des composants du terrain %n");
         // Initialisation de la table cells...
         // && Ajout de chaque cell au flowPane GameVisual...
 
-        cells = new Label[doubleRatio][doubleRatio];
+        cells = new Label[l][l];
+        rechargeTabCells();
+        addBorderToGameVisual();
+        finalCodeAdd();
+    }
+
+    /**
+     * permet d'aligner et éventuellement tous les composants de la vue'
+     *
+     */
+    public void finalCodeAdd()
+    {
         Info = new LabelsInfo();
         setTop(Info);
         setAlignment(Info,Pos.TOP_CENTER);
-
-        for (int i=0;i<doubleRatio;i++)
-        {
-            for(int j=0;j<doubleRatio;j++)
-            {
-                cells[i][j]=new Label("");
-                cells[i][j].setMaxWidth(10);
-                cells[i][j].setMinWidth(10);
-                cells[i][j].setMinHeight(10);
-                cells[i][j].setMaxHeight(10);
-                cells[i][j].setStyle("-fx-background-color: white;-fx-font-size: 5;-fx-alignment: center;");
-                GameVisual.getChildren().add(cells[i][j]);
-            }
-        }
-
-        GameVisual.setStyle("-fx-background-color: white");
-        GameVisual.setAlignment(Pos.CENTER);
         setLeft(GameVisual);
         setAlignment(GameVisual, Pos.CENTER_LEFT);
         setRight(components);
         setAlignment(components,Pos.CENTER_RIGHT);
-
         setBottom(Quit);
         setAlignment(Quit,Pos.BOTTOM_RIGHT);
-
         this.setPadding(new Insets(10));
-        System.out.printf("finition de updateGameVisual de la vue %n");
-
         //Initialiser le terrain avec les paramètres de l'utilisateur...
         this.updateContainerFourmiliere();
-
-        System.out.printf("appel de la fonction pour remplir le terrain à initialisation du game %n");
-        //
+        changeGrilleVisibility();
         //mise à jour du terrain...
         this.changeCellBackgroundOnContainer();
-        System.out.printf("mise à jour de la vue du game %n");
     }
 
 
+    /**
+     * permet de mettre à jour la visibilité de la grille
+     *
+     */
     public void changeGrilleVisibility()
     {
-        switch(UltimateBtns.index_Pause_Play)
-        {
-            case 0:
-            {
+        switch (UltimateBtns.index_Pause_Play) {
+            case 0 -> this.setGrilleVisible();
+            case 1 ->
                 this.setGrilleNotVisible();
-                break;
-            }
-            case 1:
-            {
-                this.setGrilleVisible();
-                UltimateBtns.index_Pause_Play=-1;
-                break;
-            }
         }
     }
 
+    /**
+     * permet de mettre à jour le contenu des cellules
+     *
+     */
 
     public void changeCellBackgroundOnContainer()
     {
+        nbIter++;
         int nbAnts=0,nbMurs=0,nbGrains=0;
-        for (int i = 0; i < doubleRatio; i++)
+        for (int i = 0; i < l; i++)
         {
-            for (int j = 0; j < doubleRatio; j++)
+            for (int j = 0; j < l; j++)
             {
                 if (Objects.equals(myFourmiliere.getCellContenu(i, j), "X"))
                 {
@@ -483,9 +378,15 @@ public class TheVue extends BorderPane
                             "-fx-alignment: center;");
             }
         }
-        Info.updateInfo(nbAnts,nbMurs,nbGrains);
+        Info.updateInfo(nbAnts,nbMurs,nbGrains,nbIter);
     }
 
+    /**
+     * permet de retourner le contenu d'une cellule
+     * @return un label
+     * @param x l'abscisse de la cellule
+     * @param y l'ordonnée de la cellule
+     */
     public Label getCellsAt(int x,int y) {
         return cells[x][y];
     }
@@ -503,17 +404,22 @@ public class TheVue extends BorderPane
     *
     * */
 
+
+    /**
+     * permet de mettre à jour  la fourmilière au tout debut lorsque l'utilisateur définie les paramètres du jeu... Et
+     * donc n'est appelé qu'une seule fois
+     *
+     */
+
     public void updateContainerFourmiliere()
     {
-        //resetFourmiliere();
-        System.out.printf("entree dans la fonction updateContainerFourmiliere %n");
+        nbIter=0;
         int min = 0, max = myFourmiliere.getLargeur() - 1;
         Random random = new Random();
         int fourmisCount = 0, grainsCount = 0, mursCount = 0;
         int maxAttempts = 10000; // Limite le nombre d'essais pour placer les éléments.
         int attempts = 0;
 
-        System.out.printf("entree dans le while de la fonction updateContainerFourmiliere %n");
         while ((fourmisCount < components.getNumberFourmis() ||
                 grainsCount < components.getNumberGrains() ||
                 mursCount < components.getNumberMurs()) && attempts < maxAttempts) {
@@ -527,44 +433,43 @@ public class TheVue extends BorderPane
                 {
                     myFourmiliere.setValueContenu(x, y, "X");
                     fourmisCount++;
-                    System.out.printf("on met les fourmis %n");
                 }
                 else if (grainsCount < components.getNumberGrains())
                 {
                     int nbCountGrains = random.nextInt(myFourmiliere.getQMax() + 1);
                     myFourmiliere.setValueContenu(x, y, ".".repeat(nbCountGrains));
                     grainsCount++;
-                    System.out.printf("on met les grains %n");
                 }
                 else if (mursCount < components.getNumberMurs())
                 {
                     myFourmiliere.setValueContenu(x, y, "O");
                     mursCount++;
-                    System.out.printf("on met les murs %n");
                 }
             }
 
             attempts++; // Incrémente le compteur d'essais.
         }
-
-        if (attempts >= maxAttempts) {
-            System.out.println("Le nombre maximum d'essais a été atteint. Veuillez réessayer avec un autre nombre d'éléments.");
-        }
     }
+
+    /**
+     * fonction à l'origine de la deuxième fenêtre qui permet de zoomer sur une cellule
+     *
+     */
 
     public void openNewWindow(int x,int y)
     {
         Stage zoomStage = new Stage();
         zoomStage.setTitle("Zoom window");
-        int length = 11;
+        int length = 10;
 
         BorderPane root = new BorderPane();
         FlowPane zoomf = new FlowPane();
 
-        zoomf.setMinSize(120,120);
+        zoomf.setMinSize(100,100);
         zoomf.setHgap(0);
         zoomf.setVgap(0);
-        zoomf.setPrefWrapLength(11*length);
+        zoomf.setPrefWrapLength(10*length);
+        zoomf.setAlignment(Pos.CENTER);
 
         int initX= x-5,
                 finalX = x+5,
@@ -576,7 +481,7 @@ public class TheVue extends BorderPane
         BorderPane.setAlignment(zoomf,Pos.CENTER);
 
 
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root,210,330);
 
         for(int i=initX;i<finalX;i++)
         {
@@ -585,6 +490,11 @@ public class TheVue extends BorderPane
                 if (!(i < 0 || i >= myFourmiliere.getLargeur() ||
                         j < 0 || j >= myFourmiliere.getLargeur()))
                 {
+
+                    cells[i][j].setMaxWidth(20);
+                    cells[i][j].setMinWidth(20);
+                    cells[i][j].setMinHeight(20);
+                    cells[i][j].setMaxHeight(20);
                     zoomf.getChildren().add(cells[i][j]);
                 }
             }
@@ -599,6 +509,10 @@ public class TheVue extends BorderPane
                     if (!(i < 0 || i >= myFourmiliere.getLargeur() ||
                             j < 0 || j >= myFourmiliere.getLargeur()))
                     {
+                        cells[i][j].setMaxWidth(10);
+                        cells[i][j].setMinWidth(10);
+                        cells[i][j].setMinHeight(10);
+                        cells[i][j].setMaxHeight(10);
                         GameVisual.getChildren().add(cells[i][j]);
                     }
                 }

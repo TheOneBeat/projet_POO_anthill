@@ -1,4 +1,4 @@
-package theAnthill_project.theModel;
+package jeuDesFourmis.theModel;
 
 /** 
  * Classe de gestion de fourmis
@@ -6,10 +6,8 @@ package theAnthill_project.theModel;
  * @version 1.1
  */
 public class Fourmi {
-	
-    private static int prPREND = 3 ; 
-    private static double prPOSE = 1.4 ; 
-    private int x,y ; 
+
+    private int x,y ;
     private boolean porteGraine ;
     /*boolean pour savoir si la fourmi
     porte ou pas une grain */
@@ -25,13 +23,6 @@ public class Fourmi {
 	this.x = x ;
 	this.y = y ; 
 	this.porteGraine = porteGraine ; 
-    }
-    
-    /**
-     * Crée une fourmi en (1,1) qui ne porte rien
-     */
-    public Fourmi (){
-	this(1,1,false);
     }
 	
 	
@@ -65,7 +56,8 @@ public class Fourmi {
      * @return           probabilité de prise
      */
     public static double probaPrend (int nbGraines){
-	return (1.0/( double) (nbGraines + prPREND));
+        int prPREND = 3;
+        return (1.0/( double) (nbGraines + prPREND));
     }
     /**
      *  Retourne une probabilité (valeur comprise entre 0.0 et 1.0)
